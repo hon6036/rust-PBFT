@@ -1,0 +1,256 @@
+2024-09-03 02:28:34 UTC src/replica/replica.rs 29 - INFO:  [1] pbft Replica started
+2024-09-03 02:28:34 UTC src/replica/replica.rs 29 - INFO:  [0] pbft Replica started
+2024-09-03 02:28:34 UTC src/replica/replica.rs 29 - INFO:  [2] pbft Replica started
+2024-09-03 02:28:34 UTC src/replica/replica.rs 53 - INFO:  [1] strat listening TCP port 127.0.0.1:20001
+2024-09-03 02:28:34 UTC src/replica/replica.rs 29 - INFO:  [3] pbft Replica started
+2024-09-03 02:28:34 UTC src/replica/replica.rs 53 - INFO:  [0] strat listening TCP port 127.0.0.1:20000
+2024-09-03 02:28:34 UTC src/replica/replica.rs 53 - INFO:  [2] strat listening TCP port 127.0.0.1:20002
+2024-09-03 02:28:34 UTC src/replica/replica.rs 53 - INFO:  [3] strat listening TCP port 127.0.0.1:20003
+2024-09-03 02:28:34 UTC src/http/http.rs 16 - INFO:  Starting HTTP server "127.0.0.1:10001"
+2024-09-03 02:28:34 UTC src/http/http.rs 16 - INFO:  Starting HTTP server "127.0.0.1:10000"
+2024-09-03 02:28:34 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/builder.rs 272 - INFO: starting 4 workers
+2024-09-03 02:28:34 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 191 - INFO: Actix runtime found; starting in Actix runtime
+2024-09-03 02:28:34 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 197 - INFO: starting service: "actix-web-service-127.0.0.1:10001", workers: 4, listening on: 127.0.0.1:10001
+2024-09-03 02:28:34 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/builder.rs 272 - INFO: starting 4 workers
+2024-09-03 02:28:34 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 191 - INFO: Actix runtime found; starting in Actix runtime
+2024-09-03 02:28:34 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 197 - INFO: starting service: "actix-web-service-127.0.0.1:10000", workers: 4, listening on: 127.0.0.1:10000
+2024-09-03 02:28:34 UTC src/http/http.rs 16 - INFO:  Starting HTTP server "127.0.0.1:10003"
+2024-09-03 02:28:34 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/builder.rs 272 - INFO: starting 4 workers
+2024-09-03 02:28:34 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 191 - INFO: Actix runtime found; starting in Actix runtime
+2024-09-03 02:28:34 UTC src/http/http.rs 16 - INFO:  Starting HTTP server "127.0.0.1:10002"
+2024-09-03 02:28:34 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 197 - INFO: starting service: "actix-web-service-127.0.0.1:10003", workers: 4, listening on: 127.0.0.1:10003
+2024-09-03 02:28:34 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/builder.rs 272 - INFO: starting 4 workers
+2024-09-03 02:28:34 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 191 - INFO: Actix runtime found; starting in Actix runtime
+2024-09-03 02:28:34 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 197 - INFO: starting service: "actix-web-service-127.0.0.1:10002", workers: 4, listening on: 127.0.0.1:10002
+2024-09-03 02:28:34 UTC src/replica/replica.rs 84 - INFO: handle_transaction started
+2024-09-03 02:28:34 UTC src/replica/replica.rs 84 - INFO: handle_transaction started
+2024-09-03 02:28:34 UTC src/replica/replica.rs 84 - INFO: handle_transaction started
+2024-09-03 02:28:34 UTC src/replica/replica.rs 84 - INFO: handle_transaction started
+2024-09-03 02:28:37 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:28:37 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:28:37 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:28:37 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:28:37 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:28:37 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:28:37 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:28:37 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:28:37 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:28:37 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:23 UTC src/replica/replica.rs 29 - INFO:  [0] pbft Replica started
+2024-09-03 02:29:23 UTC src/replica/replica.rs 29 - INFO:  [1] pbft Replica started
+2024-09-03 02:29:23 UTC src/replica/replica.rs 53 - INFO:  [0] strat listening TCP port 127.0.0.1:20000
+2024-09-03 02:29:23 UTC src/replica/replica.rs 53 - INFO:  [1] strat listening TCP port 127.0.0.1:20001
+2024-09-03 02:29:23 UTC src/replica/replica.rs 29 - INFO:  [2] pbft Replica started
+2024-09-03 02:29:23 UTC src/replica/replica.rs 29 - INFO:  [3] pbft Replica started
+2024-09-03 02:29:23 UTC src/replica/replica.rs 53 - INFO:  [2] strat listening TCP port 127.0.0.1:20002
+2024-09-03 02:29:23 UTC src/replica/replica.rs 53 - INFO:  [3] strat listening TCP port 127.0.0.1:20003
+2024-09-03 02:29:23 UTC src/http/http.rs 16 - INFO:  Starting HTTP server "127.0.0.1:10001"
+2024-09-03 02:29:23 UTC src/http/http.rs 16 - INFO:  Starting HTTP server "127.0.0.1:10000"
+2024-09-03 02:29:23 UTC src/http/http.rs 16 - INFO:  Starting HTTP server "127.0.0.1:10002"
+2024-09-03 02:29:23 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/builder.rs 272 - INFO: starting 4 workers
+2024-09-03 02:29:23 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/builder.rs 272 - INFO: starting 4 workers
+2024-09-03 02:29:23 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/builder.rs 272 - INFO: starting 4 workers
+2024-09-03 02:29:23 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 191 - INFO: Actix runtime found; starting in Actix runtime
+2024-09-03 02:29:23 UTC src/http/http.rs 16 - INFO:  Starting HTTP server "127.0.0.1:10003"
+2024-09-03 02:29:23 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 191 - INFO: Actix runtime found; starting in Actix runtime
+2024-09-03 02:29:23 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 197 - INFO: starting service: "actix-web-service-127.0.0.1:10000", workers: 4, listening on: 127.0.0.1:10000
+2024-09-03 02:29:23 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 197 - INFO: starting service: "actix-web-service-127.0.0.1:10002", workers: 4, listening on: 127.0.0.1:10002
+2024-09-03 02:29:23 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 191 - INFO: Actix runtime found; starting in Actix runtime
+2024-09-03 02:29:23 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 197 - INFO: starting service: "actix-web-service-127.0.0.1:10001", workers: 4, listening on: 127.0.0.1:10001
+2024-09-03 02:29:23 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/builder.rs 272 - INFO: starting 4 workers
+2024-09-03 02:29:23 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 191 - INFO: Actix runtime found; starting in Actix runtime
+2024-09-03 02:29:23 UTC /home/osdc/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.5.0/src/server.rs 197 - INFO: starting service: "actix-web-service-127.0.0.1:10003", workers: 4, listening on: 127.0.0.1:10003
+2024-09-03 02:29:23 UTC src/replica/replica.rs 84 - INFO: handle_transaction started
+2024-09-03 02:29:23 UTC src/replica/replica.rs 84 - INFO: handle_transaction started
+2024-09-03 02:29:23 UTC src/replica/replica.rs 84 - INFO: handle_transaction started
+2024-09-03 02:29:23 UTC src/replica/replica.rs 84 - INFO: handle_transaction started
+2024-09-03 02:29:24 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:29:24 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:29:24 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:29:24 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:29:24 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:29:24 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/http/http.rs 29 - INFO:  Received Transaction
+2024-09-03 02:29:24 UTC src/consensus/pbft.rs 25 - INFO:  start processing block
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["1"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["3"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/transport/transport.rs 39 - INFO: received data PrePrePare(PrePrePare { view: 1, block_height: 1, id: "2" })
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["2"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }
+2024-09-03 02:29:24 UTC src/replica/replica.rs 92 - INFO:  ["0"] PrePrePare Message PrePrePare { view: 1, block_height: 1, id: "2" }

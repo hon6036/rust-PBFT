@@ -1,0 +1,33 @@
+appenders:
+  info:
+    kind: file
+    filters:
+      - kind: threshold
+        level: info
+    path: "logs/info.log"
+    encoder:
+      pattern: "{d(%Y-%m-%d %H:%M:%S %Z)(utc)} {f} {L} - {l}: {m}{n}"
+  error:
+    kind: file
+    filters:
+      - kind: threshold
+        level: error
+    path: "logs/error.log"
+    encoder:
+      pattern: "{d(%Y-%m-%d %H:%M:%S %Z)(utc)} {f} {L} - {l}: {m}{n}"
+  
+root:
+  level: info
+  appenders:
+  - info
+  - error
+
+loggers:
+  hyper:
+    level: info
+    appenders: []
+    additive: false
+  actix_web:
+    level: info
+    appenders: []
+    additive: false

@@ -1,0 +1,2 @@
+replica_number = 4
+consensus = "pbft"
