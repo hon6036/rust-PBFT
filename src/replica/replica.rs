@@ -6,6 +6,7 @@ use tokio::runtime::Runtime;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use crate::consensus::{self, Consensus};
+use crate::crypto::{self, Crypto};
 use crate::mempool::MemPool;
 use crate::{load_config, mempool, message, transport::*};
 use crate::message::{PrePrePare, PrePare, COMMIT};
@@ -21,7 +22,8 @@ pub struct Replica{
     http: http::HTTP,
     tx: Sender<message::Transaction>,
     rx: Receiver<message::Transaction>,
-    mempool: mempool::MemPool
+    mempool: mempool::MemPool,
+    crypto: crypto::Crypto
 }
 impl Replica {
 
@@ -48,7 +50,8 @@ impl Replica {
             workers: 4
         };
         let mempool = MemPool::new();
-        Replica {id, transport, consensus, http, tx, rx, mempool}
+        let crypto = Crypto::new();
+        Replica {id, transport, consensus, http, tx, rx, mempool, crypto}
         
     }
 
@@ -67,7 +70,6 @@ impl Replica {
             Self::handle_transaction(mempool_for_generate_payload.clone(), consensus_for_transaction.clone(),self.rx).await;
         });
         let block = Self::make_block(mempool.clone());
-        info!("block block{:?}", block);
         let id = Arc::new(self.id);
         for stream in self.transport.connection().incoming() {
             let id_clone = id.clone();

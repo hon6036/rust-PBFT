@@ -9,6 +9,7 @@ mod transport;
 mod socket;
 mod http;
 mod mempool;
+mod crypto;
 use serde::Deserialize;
 use std::fs;
 use std::error::Error;
