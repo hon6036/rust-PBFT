@@ -1,2 +1,3 @@
 replica_number = 4
 consensus = "pbft"
+batch_size = 30

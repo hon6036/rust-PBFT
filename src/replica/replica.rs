@@ -6,7 +6,8 @@ use tokio::runtime::Runtime;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use crate::consensus::{self, Consensus};
-use crate::{message, transport::*};
+use crate::mempool::MemPool;
+use crate::{load_config, mempool, message, transport::*};
 use crate::message::{PrePrePare, PrePare, COMMIT};
 use crate::types::*;
 use crate::http::*;
@@ -19,7 +20,8 @@ pub struct Replica{
     consensus: consensus::Consensus,
     http: http::HTTP,
     tx: Sender<message::Transaction>,
-    rx: Receiver<message::Transaction>
+    rx: Receiver<message::Transaction>,
+    mempool: mempool::MemPool
 }
 impl Replica {
 
@@ -45,7 +47,8 @@ impl Replica {
             port: port.to_string(),
             workers: 4
         };
-        Replica {id, transport, consensus, http, tx, rx}
+        let mempool = MemPool::new();
+        Replica {id, transport, consensus, http, tx, rx, mempool}
         
     }
 
@@ -57,12 +60,14 @@ impl Replica {
         });
         let consensus = Arc::new(Mutex::new(self.consensus));
         let consensus_for_transaction = Arc::clone(&consensus);
-        
+        let mempool = Arc::new(Mutex::new(self.mempool));
+        let mempool_for_generate_payload = Arc::clone(&mempool);
         let rt = Runtime::new().unwrap();
         rt.spawn(async move{
-            Self::handle_transaction(consensus_for_transaction.clone(),self.rx).await;
+            Self::handle_transaction(mempool_for_generate_payload.clone(), consensus_for_transaction.clone(),self.rx).await;
         });
-        
+        let block = Self::make_block(mempool.clone());
+        info!("block block{:?}", block);
         let id = Arc::new(self.id);
         for stream in self.transport.connection().incoming() {
             let id_clone = id.clone();
@@ -80,12 +85,22 @@ impl Replica {
         }
     }
     
-    pub async fn handle_transaction(consensus:Arc<Mutex<Consensus>>, mut tx_handler: Receiver<message::Transaction>) {
+    pub async fn handle_transaction(mempool:Arc<Mutex<mempool::MemPool>>,consensus:Arc<Mutex<Consensus>>, mut tx_handler: Receiver<message::Transaction>) {
         info!("handle_transaction started");
-        while let Some(message) = tx_handler.recv().await {
+
+        while let Some(transaction) = tx_handler.recv().await {
+            let mut mempool = mempool.lock().unwrap();
+            mempool.add_transaction(transaction);
             let consensus = consensus.lock().unwrap();
-            consensus.process_preprepare()
+            
         }
+    }
+
+    pub fn make_block(mempool:Arc<Mutex<mempool::MemPool>>) {
+        let mut mempool = mempool.lock().unwrap();
+        let config = load_config().unwrap();
+        let batch_size = config.batch_size;
+        let payload = mempool.payload(batch_size);
     }
 
     pub fn handle_preprepare_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PrePrePare) {

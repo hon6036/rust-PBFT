@@ -8,6 +8,7 @@ mod types;
 mod transport;
 mod socket;
 mod http;
+mod mempool;
 use serde::Deserialize;
 use std::fs;
 use std::error::Error;
@@ -15,7 +16,8 @@ use std::path::Path;
 #[derive(Deserialize)]
 pub struct ServerConfig {
     replica_number: i32,
-    consensus: String
+    consensus: String,
+    batch_size: usize
 }
 
 pub fn load_config() -> Result<ServerConfig, Box<dyn Error>> {
