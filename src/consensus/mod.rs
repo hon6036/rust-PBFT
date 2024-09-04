@@ -6,6 +6,11 @@ pub enum Consensus {
 }
 
 impl Consensus {
+    pub fn make_block(&self) {
+        match self {
+            Consensus::PBFT(pbft) => pbft.make_block()
+        }
+    }
     pub fn process_preprepare(&self) {
         match self {
             Consensus::PBFT(pbft) => pbft.process_preprepare()

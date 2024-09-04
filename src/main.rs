@@ -10,6 +10,7 @@ mod socket;
 mod http;
 mod mempool;
 mod crypto;
+mod blockchain;
 use serde::Deserialize;
 use std::fs;
 use std::error::Error;

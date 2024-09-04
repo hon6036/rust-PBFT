@@ -5,6 +5,7 @@ use tokio::sync::mpsc::{
 use tokio::runtime::Runtime;
 use std::sync::{Arc, Mutex};
 use std::thread;
+use crate::blockchain::block;
 use crate::consensus::{self, Consensus};
 use crate::crypto::{self, Crypto};
 use crate::mempool::MemPool;
@@ -69,7 +70,8 @@ impl Replica {
         rt.spawn(async move{
             Self::handle_transaction(mempool_for_generate_payload.clone(), consensus_for_transaction.clone(),self.rx).await;
         });
-        let block = Self::make_block(mempool.clone());
+        let consensus_for_block = consensus.lock().unwrap();
+        consensus_for_block.make_block();
         let id = Arc::new(self.id);
         for stream in self.transport.connection().incoming() {
             let id_clone = id.clone();
@@ -96,13 +98,6 @@ impl Replica {
             let consensus = consensus.lock().unwrap();
             
         }
-    }
-
-    pub fn make_block(mempool:Arc<Mutex<mempool::MemPool>>) {
-        let mut mempool = mempool.lock().unwrap();
-        let config = load_config().unwrap();
-        let batch_size = config.batch_size;
-        let payload = mempool.payload(batch_size);
     }
 
     pub fn handle_preprepare_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PrePrePare) {

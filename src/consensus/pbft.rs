@@ -1,6 +1,6 @@
 use log::info;
 
-use crate::{types::Identity, message::*, socket::*};
+use crate::{blockchain::block, load_config, mempool, message::*, socket::*, types::Identity};
 use std::sync::{Arc, Mutex};
 
 pub struct PBFT {
@@ -18,8 +18,13 @@ impl PBFT{
     }
 
     pub fn make_block(&self) {
-        todo!()
+        // let mut mempool = mempool.lock().unwrap();
+        // let config = load_config().unwrap();
+        // let batch_size = config.batch_size;
+        // let payload = mempool.payload(batch_size);
+        
     }
+
 
     pub fn process_preprepare(&self) {
         info!(" start processing block");
@@ -34,6 +39,7 @@ impl PBFT{
     }
 
     pub fn process_prepare(&self) {
+        
         todo!()
     }
 
