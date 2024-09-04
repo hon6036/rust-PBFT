@@ -1,16 +1,19 @@
 use crate::{message, types};
-use ring::signature::Signature;
-pub struct Block {
-    block_id: types::BlockID,
-    payload: Vec<message::Transaction>,
-    view: types::View,
-    signature: Signature,
-    proposer: types::Identity
-}
+use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Block {
+    pub block_id: types::BlockID,
+    pub block_height: types::BlockHeight,
+    pub payload: Vec<message::Transaction>,
+    pub view: types::View,
+    pub signature: Vec<u8>,
+    pub proposer: types::Identity
+}
+#[derive(Debug, Serialize, Deserialize)]
 pub struct BlockWithoutSignature {
-    block_id: types::BlockID,
-    payload: Vec<message::Transaction>,
-    view: types::View,
-    proposer: types::Identity
+    pub payload: Vec<message::Transaction>,
+    pub view: types::View,
+    pub block_height: types::BlockHeight,
+    pub proposer: types::Identity
 }

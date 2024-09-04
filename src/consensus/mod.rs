@@ -1,14 +1,17 @@
 pub mod pbft;
+use log::info;
 pub use pbft::*;
-
+use ring::signature::EcdsaKeyPair;
+use crate::mempool::*;
+use std::sync::{Arc, Mutex};
 pub enum Consensus {
     PBFT(PBFT)
 }
 
 impl Consensus {
-    pub fn make_block(&self) {
+    pub fn make_block(&self, mempool:Arc<Mutex<MemPool>>, key_pair:EcdsaKeyPair) {
         match self {
-            Consensus::PBFT(pbft) => pbft.make_block()
+            Consensus::PBFT(pbft) => pbft.make_block(mempool, key_pair)
         }
     }
     pub fn process_preprepare(&self) {

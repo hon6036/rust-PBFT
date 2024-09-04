@@ -1,4 +1,4 @@
-use crate::types::*;
+use crate::{blockchain::block, types::*};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -10,9 +10,7 @@ pub enum Message {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PrePrePare {
-    pub view: types::View,
-    pub block_height: types::BlockHeight,
-    pub id: types::Identity,
+    pub block: block::Block
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PrePare {

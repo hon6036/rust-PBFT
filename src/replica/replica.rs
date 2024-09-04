@@ -1,4 +1,5 @@
 
+use ring::signature::EcdsaKeyPair;
 use tokio::sync::mpsc::{
     Receiver, Sender, channel
 };
@@ -68,10 +69,10 @@ impl Replica {
         let mempool_for_generate_payload = Arc::clone(&mempool);
         let rt = Runtime::new().unwrap();
         rt.spawn(async move{
-            Self::handle_transaction(mempool_for_generate_payload.clone(), consensus_for_transaction.clone(),self.rx).await;
+            Self::handle_transaction(mempool_for_generate_payload.clone(), self.rx).await;
         });
-        let consensus_for_block = consensus.lock().unwrap();
-        consensus_for_block.make_block();
+        Self::advance_view(consensus_for_transaction, mempool, self.crypto.key_pair);
+        
         let id = Arc::new(self.id);
         for stream in self.transport.connection().incoming() {
             let id_clone = id.clone();
@@ -88,15 +89,18 @@ impl Replica {
             }
         }
     }
+
+    pub fn advance_view(consensus:Arc<Mutex<Consensus>>, mempool:Arc<Mutex<mempool::MemPool>>, keypair:EcdsaKeyPair ) {
+        let consensus = consensus.lock().unwrap();
+        consensus.make_block(mempool.clone(), keypair);
+    }
     
-    pub async fn handle_transaction(mempool:Arc<Mutex<mempool::MemPool>>,consensus:Arc<Mutex<Consensus>>, mut tx_handler: Receiver<message::Transaction>) {
+    pub async fn handle_transaction(mempool:Arc<Mutex<mempool::MemPool>>, mut tx_handler: Receiver<message::Transaction>) {
         info!("handle_transaction started");
 
         while let Some(transaction) = tx_handler.recv().await {
             let mut mempool = mempool.lock().unwrap();
             mempool.add_transaction(transaction);
-            let consensus = consensus.lock().unwrap();
-            
         }
     }
 
