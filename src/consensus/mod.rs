@@ -2,21 +2,21 @@ pub mod pbft;
 use log::info;
 pub use pbft::*;
 use ring::signature::EcdsaKeyPair;
-use crate::{crypto, mempool::*, types::types};
+use crate::{crypto, mempool::*, message::*, types::types};
 use std::sync::{Arc, Mutex};
 pub enum Consensus {
     PBFT(PBFT)
 }
 
 impl Consensus {
-    pub fn exchange_publickey(&self, key_pair:&EcdsaKeyPair) {
+    pub fn exchange_publickey(&self) {
         match self {
-            Consensus::PBFT(pbft) => pbft.exchange_publickey(&key_pair)
+            Consensus::PBFT(pbft) => pbft.exchange_publickey()
         }
     }
-    pub fn make_block(&self, mempool:Arc<Mutex<MemPool>>, key_pair:EcdsaKeyPair) {
+    pub fn make_block(&self, mempool:Arc<Mutex<MemPool>>) {
         match self {
-            Consensus::PBFT(pbft) => pbft.make_block(mempool, key_pair)
+            Consensus::PBFT(pbft) => pbft.make_block(mempool)
         }
     }
     pub fn store_publickey(&mut self, id:types::Identity, publickey: Vec<u8>) {
@@ -24,19 +24,19 @@ impl Consensus {
             Consensus::PBFT(pbft) => pbft.store_publickey(id,publickey)
         }
     }
-    pub fn process_preprepare(&self) {
+    pub fn process_preprepare(&self, message: PrePrePare) {
         match self {
-            Consensus::PBFT(pbft) => pbft.process_preprepare()
+            Consensus::PBFT(pbft) => pbft.process_preprepare(message)
         }
     }
-    pub fn process_prepare(&self) {
+    pub fn process_prepare(&self, message: PrePare) {
         match self {
-            Consensus::PBFT(pbft) => pbft.process_prepare()
+            Consensus::PBFT(pbft) => pbft.process_prepare(message)
         }
     }
-    pub fn process_commit(&self) {
+    pub fn process_commit(&self, message: Commit) {
         match self {
-            Consensus::PBFT(pbft) => pbft.process_commit()
+            Consensus::PBFT(pbft) => pbft.process_commit(message)
         }
     }
 }

@@ -30,7 +30,7 @@ impl Transport {
     }
     
     pub fn handle_connection(consensus: Arc<Mutex<Consensus>>, id: Arc<String>, mut stream:TcpStream) {
-        let mut buffer = [0 as u8;200];
+        let mut buffer = [0 as u8;1024];
         loop {
             match stream.read(&mut buffer) {
                 Ok(_) => {
@@ -40,7 +40,7 @@ impl Transport {
                             match parsed_message {
                                 Message::PrePrePare(data) => Replica::handle_preprepare_message(consensus.clone(),id.clone(),data),
                                 Message::PrePare(data) => Replica::handle_prepare_message(consensus.clone(), id.clone(),data),
-                                Message::COMMIT(data) => Replica::handle_commit_message(consensus.clone(), id.clone(),data),
+                                Message::Commit(data) => Replica::handle_commit_message(consensus.clone(), id.clone(),data),
                                 Message::PublicKey(data) => Replica::handle_publickey_message(consensus.clone(), id.clone(),data),
                             }
                         }

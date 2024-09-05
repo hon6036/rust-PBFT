@@ -7,7 +7,7 @@ pub enum Message {
     PublicKey(PublicKey),
     PrePrePare(PrePrePare),
     PrePare(PrePare),
-    COMMIT(COMMIT)
+    Commit(Commit)
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -25,14 +25,28 @@ pub struct PrePrePare {
 pub struct PrePare {
     pub view: types::View,
     pub block_height: types::BlockHeight,
-    pub id: types::Identity,
+    pub proposer: types::Identity,
+    pub signature: Vec<u8>,
+}
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PrePareWithoutSignature {
+    pub view: types::View,
+    pub block_height: types::BlockHeight,
+    pub proposer: types::Identity,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct COMMIT{
+pub struct Commit{
     pub view: types::View,
     pub block_height: types::BlockHeight,
-    pub id: types::Identity,
+    pub proposer: types::Identity,
+    pub signature: Vec<u8>,
+}
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CommitWithoutSignature{
+    pub view: types::View,
+    pub block_height: types::BlockHeight,
+    pub proposer: types::Identity
 }
 
 #[derive(Debug, Serialize, Deserialize)]

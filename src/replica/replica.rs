@@ -11,7 +11,7 @@ use crate::consensus::{self, Consensus};
 use crate::crypto::{self, Crypto};
 use crate::mempool::MemPool;
 use crate::{load_config, mempool, message, transport::*};
-use crate::message::{PrePare, PrePrePare, PublicKey, COMMIT};
+use crate::message::{PrePare, PrePrePare, PublicKey, Commit};
 use crate::types::*;
 use crate::http::*;
 use log::{info, error};
@@ -25,18 +25,17 @@ pub struct Replica{
     tx: Sender<message::Transaction>,
     rx: Receiver<message::Transaction>,
     mempool: mempool::MemPool,
-    crypto: crypto::Crypto
 }
 impl Replica {
 
     pub fn new(id: i32, consensus:String) -> Replica {
-        let transport = Transport::new(id);
-        
         info!(" [{}] {} Replica started", id, consensus);
+        let transport = Transport::new(id);
         let crypto = Crypto::new();
+        let mempool = MemPool::new();
         let consensus = match consensus.as_str() {
             "pbft" => Some(consensus::Consensus::PBFT(
-                consensus::PBFT::new(id)
+                consensus::PBFT::new(id, crypto.key_pair)
             )),
             _ => {
                 error!("Consensus name is not matched");
@@ -52,11 +51,8 @@ impl Replica {
             port: port.to_string(),
             workers: 4
         };
-        let mempool = MemPool::new();
-        Replica {id, transport, consensus, http, tx, rx, mempool, crypto}
-        
+        Replica {id, transport, consensus, http, tx, rx, mempool}
     }
-
 
     pub fn start(self) {
         info!(" [{}] strat listening TCP port {:?}", self.id, self.transport.connection().local_addr().unwrap());
@@ -66,14 +62,15 @@ impl Replica {
         });
         let consensus = Arc::new(Mutex::new(self.consensus));
         let consensus_for_transaction = Arc::clone(&consensus);
+        let consensus_for_advance_view = Arc::clone(&consensus);
         let mempool = Arc::new(Mutex::new(self.mempool));
         let mempool_for_generate_payload = Arc::clone(&mempool);
         let rt = Runtime::new().unwrap();
         rt.spawn(async move{
             Self::handle_transaction(mempool_for_generate_payload.clone(), self.rx).await;
         });
-        Self::exchange_publickey(consensus, &self.crypto.key_pair);
-        // Self::advance_view(consensus_for_transaction, mempool, self.crypto.key_pair);
+        Self::exchange_publickey(consensus);
+        Self::advance_view(consensus_for_advance_view, mempool);
         
         let id = Arc::new(self.id);
         for stream in self.transport.connection().incoming() {
@@ -93,14 +90,14 @@ impl Replica {
     }
 
     
-    pub fn exchange_publickey(consensus:Arc<Mutex<Consensus>>, keypair:&EcdsaKeyPair ) {
+    pub fn exchange_publickey(consensus:Arc<Mutex<Consensus>>) {
         let consensus = consensus.lock().unwrap();
-        consensus.exchange_publickey(&keypair);
+        consensus.exchange_publickey();
     }
 
-    pub fn advance_view(consensus:Arc<Mutex<Consensus>>, mempool:Arc<Mutex<mempool::MemPool>>, keypair:EcdsaKeyPair ) {
+    pub fn advance_view(consensus:Arc<Mutex<Consensus>>, mempool:Arc<Mutex<mempool::MemPool>>) {
         let consensus = consensus.lock().unwrap();
-        consensus.make_block(mempool.clone(), keypair);
+        consensus.make_block(mempool.clone());
     }
     
     pub async fn handle_transaction(mempool:Arc<Mutex<mempool::MemPool>>, mut tx_handler: Receiver<message::Transaction>) {
@@ -121,19 +118,19 @@ impl Replica {
     pub fn handle_preprepare_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PrePrePare) {
         info!(" [{:?}] PrePrePare Message {:?}", id,message);
         let consensus = consensus.lock().unwrap();
-        consensus.process_preprepare()
+        consensus.process_preprepare(message)
         
     }
 
     pub fn handle_prepare_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PrePare) {
         info!(" [{:?}] PrePare Message {:?}", id,message);
         let consensus = consensus.lock().unwrap();
-        // consensus.process_prepare()
+        consensus.process_prepare(message)
     }
 
-    pub fn handle_commit_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: COMMIT) {
+    pub fn handle_commit_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: Commit) {
         info!(" [{:?}] COMMIT Message {:?}", id,message);
         let consensus = consensus.lock().unwrap();
-        consensus.process_commit()
+        consensus.process_commit(message)
     }
 }

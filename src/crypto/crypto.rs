@@ -8,7 +8,7 @@ use ring:: {
 };
 use serde::Serialize;
 
-use crate::{blockchain::block, message, types};
+use crate::{blockchain::{block, BlockWithoutSignature}, message, types};
 
 
 pub struct Crypto {
@@ -24,7 +24,7 @@ impl Crypto {
     }
 }
 
-pub fn make_block_signature(key_pair:EcdsaKeyPair, block_without_signature:&block::BlockWithoutSignature) -> Vec<u8> {
+pub fn make_block_signature(key_pair:&EcdsaKeyPair, block_without_signature:&block::BlockWithoutSignature) -> Vec<u8> {
     let serialized_block = serde_json::to_vec(&block_without_signature).unwrap();
     
     let rng = rand::SystemRandom::new();
@@ -33,13 +33,50 @@ pub fn make_block_signature(key_pair:EcdsaKeyPair, block_without_signature:&bloc
     signature.as_ref().to_vec()
 }
 
-pub fn verify_signature(key_pair:EcdsaKeyPair, message:message::Message, signature:Vec<u8>) {
-    let a = UnparsedPublicKey::new(&ECDSA_P256_SHA256_FIXED, key_pair.public_key());
-    let message = bincode::serialize(&message).unwrap();
-    match a.verify(&message, signature.as_ref()) {
-        Ok(_) => info!("서명 검증 성공"),
-        Err(e) => info!("실패 {:?}", e)
+pub fn verify_signature(proposer_publicekey:Vec<u8>, message:message::Message) -> bool {
+    let proposer_publicekey:&[u8] = proposer_publicekey.as_ref();
+    let proposer_publicekey = UnparsedPublicKey::new(&ECDSA_P256_SHA256_FIXED, proposer_publicekey);
+    match message {
+        message::Message::PrePrePare(message) => {
+            let block_without_signature = block::BlockWithoutSignature {
+                payload: message.block.payload,
+                view: message.block.view,
+                block_height: message.block.block_height,
+                proposer: message.block.proposer
+            };
+            let serialized_block = bincode::serialize(&block_without_signature).unwrap();
+            match proposer_publicekey.verify(&serialized_block, message.block.signature.as_ref()) {
+                Ok(_) => true,
+                Err(_) => false
+            }
+        },
+        message::Message::PrePare(message) => {
+            let message_without_signature = message::PrePareWithoutSignature {
+                view: message.view,
+                block_height: message.block_height,
+                proposer: message.proposer,
+            };
+            let serialized_prepare_message = bincode::serialize(&message_without_signature).unwrap();
+            match proposer_publicekey.verify(&serialized_prepare_message, message.signature.as_ref()) {
+                Ok(_) => true,
+                Err(_) => false,
+            }
+        },
+        message::Message::Commit(message) => {
+            let message_without_signature = message::CommitWithoutSignature {
+                view: message.view,
+                block_height: message.block_height,
+                proposer: message.proposer,
+            };
+            let serialized_commit_message = bincode::serialize(&message_without_signature).unwrap();
+            match proposer_publicekey.verify(&serialized_commit_message, message.signature.as_ref()) {
+                Ok(_) => true,
+                Err(_) => false,
+            }
+        },
+        message::Message::PublicKey(_) => false,
     }
+
 }
 
 pub fn make_block_id(block_without_signature:&block::BlockWithoutSignature) -> String{
