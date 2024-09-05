@@ -44,10 +44,13 @@ pub fn verify_signature(proposer_publicekey:Vec<u8>, message:message::Message) -
                 block_height: message.block.block_height,
                 proposer: message.block.proposer
             };
-            let serialized_block = bincode::serialize(&block_without_signature).unwrap();
+            let serialized_block = serde_json::to_vec(&block_without_signature).unwrap();
             match proposer_publicekey.verify(&serialized_block, message.block.signature.as_ref()) {
                 Ok(_) => true,
-                Err(_) => false
+                Err(_) => {
+                    // info!("Failed to verify Block: {:?}", e);
+                    false
+                }
             }
         },
         message::Message::PrePare(message) => {

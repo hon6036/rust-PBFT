@@ -72,16 +72,19 @@ impl PBFT{
     pub fn process_preprepare(&self,  message: PrePrePare) {
         info!("start processing block");
         let proposer_publickey = self.publickeys.get(&message.block.proposer).unwrap();
+        
         if verify_signature(proposer_publickey.to_owned(), message::message::Message::PrePrePare(message)) {
             info!("block verify success")
         } else {
-            info!("fail to verify")
+            info!("fail to verify");
+            return
         }
     }
 
     pub fn process_prepare(&self, message: PrePare) {
         info!("start process_prepare");
         let proposer_publickey = self.publickeys.get(&message.proposer).unwrap();
+
         if verify_signature(proposer_publickey.to_owned(), message::message::Message::PrePare(message)) {
 
         }

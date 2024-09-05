@@ -5,7 +5,8 @@ use tokio::sync::mpsc::{
 };
 use tokio::runtime::Runtime;
 use std::sync::{Arc, Mutex};
-use std::thread;
+use std::thread::{self, sleep};
+use std::time::Duration;
 use crate::blockchain::block;
 use crate::consensus::{self, Consensus};
 use crate::crypto::{self, Crypto};
@@ -56,10 +57,11 @@ impl Replica {
 
     pub fn start(self) {
         info!(" [{}] strat listening TCP port {:?}", self.id, self.transport.connection().local_addr().unwrap());
-        
-        thread::spawn(move|| {
+        let mut handles = vec![];
+        let handle = thread::spawn(move|| {
             let _ = http::start_server(self.http, self.tx);
         });
+        handles.push(handle);
         let consensus = Arc::new(Mutex::new(self.consensus));
         let consensus_for_transaction = Arc::clone(&consensus);
         let consensus_for_advance_view = Arc::clone(&consensus);
@@ -69,23 +71,32 @@ impl Replica {
         rt.spawn(async move{
             Self::handle_transaction(mempool_for_generate_payload.clone(), self.rx).await;
         });
-        Self::exchange_publickey(consensus);
-        Self::advance_view(consensus_for_advance_view, mempool);
         
-        let id = Arc::new(self.id);
-        for stream in self.transport.connection().incoming() {
-            let id_clone = id.clone();
-            let consensus = Arc::clone(&consensus_for_transaction);
-            match stream {
-                Ok(stream) => {
-                    thread::spawn(move|| {
-                        Transport::handle_connection(consensus.clone(), id_clone, stream);
-                    });
-                }
-                Err(err) => {
-                    error!("connection refused {}", err);
+        let id = Arc::new(self.id.clone());
+        let handle = thread::spawn(move|| {
+            for stream in self.transport.connection().incoming() {
+                let id_clone = id.clone();
+                let consensus = Arc::clone(&consensus_for_transaction);
+                match stream {
+                    Ok(stream) => {
+                        thread::spawn(move|| {
+                            Transport::handle_connection(consensus.clone(), id_clone, stream);
+                        });
+                    }
+                    Err(err) => {
+                        error!("connection refused {}", err);
+                    }
                 }
             }
+        });
+        handles.push(handle);
+        Self::exchange_publickey(consensus);
+        sleep(Duration::new(2,0));
+        if self.id == 1.to_string() {
+            Self::advance_view(consensus_for_advance_view, mempool);
+        }
+        for handle in handles{
+            handle.join().unwrap()
         }
     }
 
