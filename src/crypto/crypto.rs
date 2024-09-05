@@ -6,8 +6,9 @@ use ring:: {
         self, EcdsaKeyPair, EcdsaVerificationAlgorithm, KeyPair, UnparsedPublicKey, VerificationAlgorithm, ECDSA_P256_SHA256_ASN1_SIGNING, ECDSA_P256_SHA256_FIXED, ECDSA_P256_SHA256_FIXED_SIGNING
     }
 };
+use serde::Serialize;
 
-use crate::{blockchain::block, types};
+use crate::{blockchain::block, message, types};
 
 
 pub struct Crypto {
@@ -25,15 +26,20 @@ impl Crypto {
 
 pub fn make_block_signature(key_pair:EcdsaKeyPair, block_without_signature:&block::BlockWithoutSignature) -> Vec<u8> {
     let serialized_block = serde_json::to_vec(&block_without_signature).unwrap();
-
+    
     let rng = rand::SystemRandom::new();
     let signature = key_pair.sign(&rng, &serialized_block).unwrap();
-    // let a = UnparsedPublicKey::new(&ECDSA_P256_SHA256_FIXED, key_pair.public_key());
-    // match a.verify(message.as_bytes(), signature.as_ref()) {
-    //     Ok(_) => info!("서명 검증 성공"),
-    //     Err(e) => info!("실패 {:?}", e)
-    // }
+    
     signature.as_ref().to_vec()
+}
+
+pub fn verify_signature(key_pair:EcdsaKeyPair, message:message::Message, signature:Vec<u8>) {
+    let a = UnparsedPublicKey::new(&ECDSA_P256_SHA256_FIXED, key_pair.public_key());
+    let message = bincode::serialize(&message).unwrap();
+    match a.verify(&message, signature.as_ref()) {
+        Ok(_) => info!("서명 검증 성공"),
+        Err(e) => info!("실패 {:?}", e)
+    }
 }
 
 pub fn make_block_id(block_without_signature:&block::BlockWithoutSignature) -> String{

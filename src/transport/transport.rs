@@ -40,7 +40,8 @@ impl Transport {
                             match parsed_message {
                                 Message::PrePrePare(data) => Replica::handle_preprepare_message(consensus.clone(),id.clone(),data),
                                 Message::PrePare(data) => Replica::handle_prepare_message(consensus.clone(), id.clone(),data),
-                                Message::COMMIT(data) => Replica::handle_commit_message(consensus.clone(), id.clone(),data)
+                                Message::COMMIT(data) => Replica::handle_commit_message(consensus.clone(), id.clone(),data),
+                                Message::PublicKey(data) => Replica::handle_publickey_message(consensus.clone(), id.clone(),data),
                             }
                         }
                         Err(err) => {

@@ -11,7 +11,7 @@ use crate::consensus::{self, Consensus};
 use crate::crypto::{self, Crypto};
 use crate::mempool::MemPool;
 use crate::{load_config, mempool, message, transport::*};
-use crate::message::{PrePrePare, PrePare, COMMIT};
+use crate::message::{PrePare, PrePrePare, PublicKey, COMMIT};
 use crate::types::*;
 use crate::http::*;
 use log::{info, error};
@@ -33,6 +33,7 @@ impl Replica {
         let transport = Transport::new(id);
         
         info!(" [{}] {} Replica started", id, consensus);
+        let crypto = Crypto::new();
         let consensus = match consensus.as_str() {
             "pbft" => Some(consensus::Consensus::PBFT(
                 consensus::PBFT::new(id)
@@ -52,10 +53,10 @@ impl Replica {
             workers: 4
         };
         let mempool = MemPool::new();
-        let crypto = Crypto::new();
         Replica {id, transport, consensus, http, tx, rx, mempool, crypto}
         
     }
+
 
     pub fn start(self) {
         info!(" [{}] strat listening TCP port {:?}", self.id, self.transport.connection().local_addr().unwrap());
@@ -71,12 +72,13 @@ impl Replica {
         rt.spawn(async move{
             Self::handle_transaction(mempool_for_generate_payload.clone(), self.rx).await;
         });
-        Self::advance_view(consensus_for_transaction, mempool, self.crypto.key_pair);
+        Self::exchange_publickey(consensus, &self.crypto.key_pair);
+        // Self::advance_view(consensus_for_transaction, mempool, self.crypto.key_pair);
         
         let id = Arc::new(self.id);
         for stream in self.transport.connection().incoming() {
             let id_clone = id.clone();
-            let consensus = Arc::clone(&consensus);
+            let consensus = Arc::clone(&consensus_for_transaction);
             match stream {
                 Ok(stream) => {
                     thread::spawn(move|| {
@@ -88,6 +90,12 @@ impl Replica {
                 }
             }
         }
+    }
+
+    
+    pub fn exchange_publickey(consensus:Arc<Mutex<Consensus>>, keypair:&EcdsaKeyPair ) {
+        let consensus = consensus.lock().unwrap();
+        consensus.exchange_publickey(&keypair);
     }
 
     pub fn advance_view(consensus:Arc<Mutex<Consensus>>, mempool:Arc<Mutex<mempool::MemPool>>, keypair:EcdsaKeyPair ) {
@@ -104,6 +112,12 @@ impl Replica {
         }
     }
 
+    pub fn handle_publickey_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PublicKey) {
+        info!(" [{:?}] publickey Message {:?}", id,message);
+        let mut consensus = consensus.lock().unwrap();
+        consensus.store_publickey(message.id,message.publickey)
+        
+    }
     pub fn handle_preprepare_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PrePrePare) {
         info!(" [{:?}] PrePrePare Message {:?}", id,message);
         let consensus = consensus.lock().unwrap();

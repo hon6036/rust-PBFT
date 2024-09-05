@@ -1,12 +1,13 @@
 use log::{debug, info};
-use ring::signature::EcdsaKeyPair;
+use ring::signature::{EcdsaKeyPair, KeyPair, UnparsedPublicKey, ECDSA_P256_SHA256_FIXED, ECDSA_P256_SHA256_FIXED_SIGNING};
 
-use crate::{blockchain::{block, BlockWithoutSignature}, crypto::*, load_config, mempool::*, message::{self, *}, socket::*, types::Identity};
-use std::sync::{Arc, Mutex};
+use crate::{blockchain::{block, BlockWithoutSignature}, crypto::{self, *}, crypto::{*}, load_config, mempool::*, message::{self, *}, socket::*, types::{self, Identity}};
+use std::{collections::HashMap, sync::{Arc, Mutex}};
 
 pub struct PBFT {
     id: Identity,
-    socket: Arc<Mutex<socket::Socket>>
+    socket: Arc<Mutex<socket::Socket>>,
+    publickeys: HashMap<Identity,UnparsedPublicKey<Vec<u8>>>
 
 }
 
@@ -15,7 +16,26 @@ impl PBFT{
     pub fn new(id: i32) -> PBFT{
         let id = id.to_string();
         let socket = Arc::new(Mutex::new(Socket::new(id.clone())));
-        PBFT{id, socket}
+        let publickeys = HashMap::new();
+        PBFT{id, socket, publickeys}
+    }
+
+    pub fn exchange_publickey(&self, key_pair: &EcdsaKeyPair){
+        let publickey = key_pair.public_key().as_ref();
+        let socket = self.socket.clone();
+        let mut socket = socket.lock().unwrap();
+        let publickey = message::PublicKey {
+            id: self.id.to_string(),
+            publickey: publickey.to_vec()
+        };
+        socket.broadcast(message::message::Message::PublicKey(publickey))
+    }
+
+    pub fn store_publickey(&mut self, id:types::Identity,publickey: Vec<u8>) {
+        info!("asdasd {:?}", self.publickeys);
+        let publickey = UnparsedPublicKey::new(&ECDSA_P256_SHA256_FIXED, publickey);
+        self.publickeys.insert(id,publickey);
+
     }
 
     pub fn make_block(&self, mempool:Arc<Mutex<MemPool>>, key_pair: EcdsaKeyPair) {
