@@ -33,7 +33,6 @@ fn make_transaction() -> Transaction {
 }
 
 async fn send_transaction(client:Client, transaction:String, address: String) -> Result<reqwest::Response, reqwest::Error> {
-
     let res = client.post(address)
         .header("Content-Type", "application/json")
         .body(transaction)

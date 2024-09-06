@@ -1,4 +1,5 @@
 use core::str;
+use std::sync::{Arc, Mutex};
 
 use log::info;
 use ring:: {
@@ -20,7 +21,7 @@ impl Crypto {
         let rng = rand::SystemRandom::new();
         let pkcs8 = EcdsaKeyPair::generate_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, &rng).unwrap();
         let key_pair = EcdsaKeyPair::from_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, &pkcs8.as_ref(), &rng).unwrap();
-        Crypto{key_pair}
+       Crypto{key_pair}
     }
 }
 

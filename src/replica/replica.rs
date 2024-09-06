@@ -23,20 +23,23 @@ pub struct Replica{
     transport: transport::Transport,
     consensus: consensus::Consensus,
     http: http::HTTP,
-    tx: Sender<message::Transaction>,
-    rx: Receiver<message::Transaction>,
+    transaction_channel_tx: Sender<message::Transaction>,
+    transaction_channel_rx: Receiver<message::Transaction>,
+    view_channel_rx: Receiver<types::View>,
     mempool: mempool::MemPool,
 }
 impl Replica {
 
     pub fn new(id: i32, consensus:String) -> Replica {
         info!(" [{}] {} Replica started", id, consensus);
+        let (transaction_channel_tx, transaction_channel_rx) = channel::<message::Transaction>(100);
+        let (view_channel_tx, view_channel_rx) = channel::<types::View>(100);
         let transport = Transport::new(id);
         let crypto = Crypto::new();
         let mempool = MemPool::new();
         let consensus = match consensus.as_str() {
             "pbft" => Some(consensus::Consensus::PBFT(
-                consensus::PBFT::new(id, crypto.key_pair)
+                consensus::PBFT::new(id, crypto.key_pair, view_channel_tx)
             )),
             _ => {
                 error!("Consensus name is not matched");
@@ -46,20 +49,19 @@ impl Replica {
         let port = 10000 + id;
         let id = id.to_string();
         let consensus = consensus.expect("Consensus name is not matched");
-        let (tx, rx) = channel::<message::Transaction>(100);
         let http = HTTP {
             host: String::from("127.0.0.1"),
             port: port.to_string(),
             workers: 4
         };
-        Replica {id, transport, consensus, http, tx, rx, mempool}
+        Replica {id, transport, consensus, http, transaction_channel_tx, transaction_channel_rx, view_channel_rx, mempool}
     }
 
     pub fn start(self) {
         info!(" [{}] strat listening TCP port {:?}", self.id, self.transport.connection().local_addr().unwrap());
         let mut handles = vec![];
         let handle = thread::spawn(move|| {
-            let _ = http::start_server(self.http, self.tx);
+            let _ = http::start_server(self.http, self.transaction_channel_tx);
         });
         handles.push(handle);
         let consensus = Arc::new(Mutex::new(self.consensus));
@@ -67,9 +69,10 @@ impl Replica {
         let consensus_for_advance_view = Arc::clone(&consensus);
         let mempool = Arc::new(Mutex::new(self.mempool));
         let mempool_for_generate_payload = Arc::clone(&mempool);
+        let mempool_for_advance_view = Arc::clone(&mempool);
         let rt = Runtime::new().unwrap();
         rt.spawn(async move{
-            Self::handle_transaction(mempool_for_generate_payload.clone(), self.rx).await;
+            Self::handle_transaction(mempool_for_generate_payload.clone(), self.transaction_channel_rx).await;
         });
         
         let id = Arc::new(self.id.clone());
@@ -92,9 +95,10 @@ impl Replica {
         handles.push(handle);
         Self::exchange_publickey(consensus);
         sleep(Duration::new(2,0));
-        if self.id == 1.to_string() {
-            Self::advance_view(consensus_for_advance_view, mempool);
-        }
+        let view:types::View = 1;
+        rt.spawn(async move{
+            Self::handle_advance_view(self.id, consensus_for_advance_view, mempool_for_advance_view, self.view_channel_rx, view).await;
+        });
         for handle in handles{
             handle.join().unwrap()
         }
@@ -106,9 +110,18 @@ impl Replica {
         consensus.exchange_publickey();
     }
 
-    pub fn advance_view(consensus:Arc<Mutex<Consensus>>, mempool:Arc<Mutex<mempool::MemPool>>) {
-        let consensus = consensus.lock().unwrap();
-        consensus.make_block(mempool.clone());
+    pub async fn handle_advance_view(id:types::Identity, consensus:Arc<Mutex<Consensus>>, mempool:Arc<Mutex<mempool::MemPool>>, mut view_hanlder: Receiver<types::View>, view:types::View) {
+        if view == 1 {
+            if id == 1.to_string() {
+                let mut consensus = consensus.lock().unwrap();
+                consensus.make_block(mempool.clone());
+            }
+        }
+        while let Some(view) = view_hanlder.recv().await {
+            let mut consensus = consensus.lock().unwrap();
+            consensus.make_block(mempool.clone())
+        }
+        
     }
     
     pub async fn handle_transaction(mempool:Arc<Mutex<mempool::MemPool>>, mut tx_handler: Receiver<message::Transaction>) {
@@ -128,7 +141,7 @@ impl Replica {
     }
     pub fn handle_preprepare_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PrePrePare) {
         info!(" [{:?}] PrePrePare Message {:?}", id,message);
-        let consensus = consensus.lock().unwrap();
+        let mut consensus = consensus.lock().unwrap();
         consensus.process_preprepare(message)
         
     }

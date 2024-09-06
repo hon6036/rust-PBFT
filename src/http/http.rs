@@ -26,7 +26,6 @@ impl HTTP {
     }
 
     async fn transaction(sender: web::Data<Sender<message::Transaction>>, req: Result<web::Json<message::Transaction>, actix_web::Error>) -> impl Responder{
-        info!(" Received Transaction" );
         let req_body = match req {
             Ok(req) => req.into_inner(),
             Err(e) => {

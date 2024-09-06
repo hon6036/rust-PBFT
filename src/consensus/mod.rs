@@ -24,7 +24,7 @@ impl Consensus {
             Consensus::PBFT(pbft) => pbft.store_publickey(id,publickey)
         }
     }
-    pub fn process_preprepare(&self, message: PrePrePare) {
+    pub fn process_preprepare(&mut self, message: PrePrePare) {
         match self {
             Consensus::PBFT(pbft) => pbft.process_preprepare(message)
         }

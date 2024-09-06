@@ -1,2 +1,2 @@
-transaction_number = 10
-http_address = "http://127.0.0.1:10000/transaction"
+transaction_number = 500
+http_address = "http://127.0.0.1:10001/transaction"

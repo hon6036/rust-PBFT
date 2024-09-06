@@ -21,10 +21,10 @@ impl MemPool {
     pub fn payload(&mut self, batch_size:usize) -> Vec<message::message::Transaction> {
         let mempool_size = self.transactions.len();
         if self.transactions.len() < batch_size {
-            let payload = self.transactions.split_off(mempool_size);
+            let payload = self.transactions.drain(0..mempool_size).collect();
             payload
         } else {
-            let payload = self.transactions.split_off(batch_size);
+            let payload = self.transactions.drain(0..batch_size).collect();
             payload
         }
     }
