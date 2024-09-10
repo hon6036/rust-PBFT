@@ -25,11 +25,9 @@ impl Crypto {
     }
 }
 
-pub fn make_block_signature(key_pair:&EcdsaKeyPair, block_without_signature:&block::BlockWithoutSignature) -> Vec<u8> {
-    let serialized_block = serde_json::to_vec(&block_without_signature).unwrap();
-    
+pub fn make_signature(key_pair:&EcdsaKeyPair, serialized_message:&Vec<u8>) -> Vec<u8> {
     let rng = rand::SystemRandom::new();
-    let signature = key_pair.sign(&rng, &serialized_block).unwrap();
+    let signature = key_pair.sign(&rng, serialized_message).unwrap();
     
     signature.as_ref().to_vec()
 }
@@ -60,10 +58,13 @@ pub fn verify_signature(proposer_publicekey:Vec<u8>, message:message::Message) -
                 block_height: message.block_height,
                 proposer: message.proposer,
             };
-            let serialized_prepare_message = bincode::serialize(&message_without_signature).unwrap();
+            let serialized_prepare_message = serde_json::to_vec(&message_without_signature).unwrap();
             match proposer_publicekey.verify(&serialized_prepare_message, message.signature.as_ref()) {
                 Ok(_) => true,
-                Err(_) => false,
+                Err(_) => {
+                    info!("Failed to verify prepare");
+                    false
+                },
             }
         },
         message::Message::Commit(message) => {
@@ -72,7 +73,7 @@ pub fn verify_signature(proposer_publicekey:Vec<u8>, message:message::Message) -
                 block_height: message.block_height,
                 proposer: message.proposer,
             };
-            let serialized_commit_message = bincode::serialize(&message_without_signature).unwrap();
+            let serialized_commit_message = serde_json::to_vec(&message_without_signature).unwrap();
             match proposer_publicekey.verify(&serialized_commit_message, message.signature.as_ref()) {
                 Ok(_) => true,
                 Err(_) => false,

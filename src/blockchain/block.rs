@@ -1,7 +1,7 @@
 use crate::{message, types};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Block {
     pub block_id: types::BlockID,
     pub block_height: types::BlockHeight,

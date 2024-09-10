@@ -42,6 +42,9 @@ impl Socket {
         let byte_message: &[u8] = &byte_vector;
         let config = load_config().unwrap();
         for i in 0..config.replica_number {
+            if i.to_string() == self.id {
+                continue
+            }
             self.send(i.to_string(), byte_message)
         }
     }

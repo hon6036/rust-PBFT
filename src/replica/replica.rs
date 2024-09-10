@@ -30,7 +30,7 @@ pub struct Replica{
 }
 impl Replica {
 
-    pub fn new(id: i32, consensus:String) -> Replica {
+    pub fn new(id: i32, consensus:String, replica_number:i32) -> Replica {
         info!(" [{}] {} Replica started", id, consensus);
         let (transaction_channel_tx, transaction_channel_rx) = channel::<message::Transaction>(100);
         let (view_channel_tx, view_channel_rx) = channel::<types::View>(100);
@@ -39,7 +39,7 @@ impl Replica {
         let mempool = MemPool::new();
         let consensus = match consensus.as_str() {
             "pbft" => Some(consensus::Consensus::PBFT(
-                consensus::PBFT::new(id, crypto.key_pair, view_channel_tx)
+                consensus::PBFT::new(id, crypto.key_pair, view_channel_tx, replica_number)
             )),
             _ => {
                 error!("Consensus name is not matched");
@@ -148,13 +148,13 @@ impl Replica {
 
     pub fn handle_prepare_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PrePare) {
         info!(" [{:?}] PrePare Message {:?}", id,message);
-        let consensus = consensus.lock().unwrap();
+        let mut consensus = consensus.lock().unwrap();
         consensus.process_prepare(message)
     }
 
     pub fn handle_commit_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: Commit) {
         info!(" [{:?}] COMMIT Message {:?}", id,message);
-        let consensus = consensus.lock().unwrap();
+        let mut consensus = consensus.lock().unwrap();
         consensus.process_commit(message)
     }
 }

@@ -29,12 +29,12 @@ impl Consensus {
             Consensus::PBFT(pbft) => pbft.process_preprepare(message)
         }
     }
-    pub fn process_prepare(&self, message: PrePare) {
+    pub fn process_prepare(&mut self, message: PrePare) {
         match self {
             Consensus::PBFT(pbft) => pbft.process_prepare(message)
         }
     }
-    pub fn process_commit(&self, message: Commit) {
+    pub fn process_commit(&mut self, message: Commit) {
         match self {
             Consensus::PBFT(pbft) => pbft.process_commit(message)
         }

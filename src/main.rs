@@ -11,6 +11,7 @@ mod http;
 mod mempool;
 mod crypto;
 mod blockchain;
+mod quorum;
 use serde::Deserialize;
 use std::fs;
 use std::error::Error;
@@ -38,7 +39,7 @@ fn main() {
     for i in 0..config.replica_number {
         let consensus_clone = consensus.clone();
         let handle = thread::spawn(move|| {
-            let replica = replica::Replica::new(i, consensus_clone.to_string());
+            let replica = replica::Replica::new(i, consensus_clone.to_string(), config.replica_number);
             replica.start();
         });
         handles.push(handle)

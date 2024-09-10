@@ -2,13 +2,7 @@ use crate::{blockchain::block, types::*};
 use ring::signature::UnparsedPublicKey;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub enum Message {
-    PublicKey(PublicKey),
-    PrePrePare(PrePrePare),
-    PrePare(PrePare),
-    Commit(Commit)
-}
+
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PublicKey {
@@ -16,12 +10,12 @@ pub struct PublicKey {
     pub publickey: Vec<u8>
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PrePrePare {
     pub block: block::Block
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PrePare {
     pub view: types::View,
     pub block_height: types::BlockHeight,
@@ -35,7 +29,7 @@ pub struct PrePareWithoutSignature {
     pub proposer: types::Identity,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Commit{
     pub view: types::View,
     pub block_height: types::BlockHeight,
@@ -49,7 +43,7 @@ pub struct CommitWithoutSignature{
     pub proposer: types::Identity
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Transaction {
     sender: types::Identity,
     receiver: types::Identity,
