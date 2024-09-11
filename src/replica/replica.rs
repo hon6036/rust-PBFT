@@ -134,26 +134,26 @@ impl Replica {
     }
 
     pub fn handle_publickey_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PublicKey) {
-        info!(" [{:?}] publickey Message {:?}", id,message);
+        info!("[{:?}] publickey Message {:?}", id,message);
         let mut consensus = consensus.lock().unwrap();
         consensus.store_publickey(message.id,message.publickey)
         
     }
     pub fn handle_preprepare_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PrePrePare) {
-        info!(" [{:?}] PrePrePare Message {:?}", id,message);
+        info!("[{:?}] handle PrePrePare Message {:?}", id,message);
         let mut consensus = consensus.lock().unwrap();
         consensus.process_preprepare(message)
         
     }
 
     pub fn handle_prepare_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PrePare) {
-        info!(" [{:?}] PrePare Message {:?}", id,message);
+        info!("[{:?}] handle PrePare Message {:?}", id,message);
         let mut consensus = consensus.lock().unwrap();
         consensus.process_prepare(message)
     }
 
     pub fn handle_commit_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: Commit) {
-        info!(" [{:?}] COMMIT Message {:?}", id,message);
+        info!("[{:?}] handle Commit Message {:?}", id,message);
         let mut consensus = consensus.lock().unwrap();
         consensus.process_commit(message)
     }

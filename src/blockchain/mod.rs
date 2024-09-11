@@ -1,24 +1,25 @@
 pub mod block;
-pub use block::*;
-use rocksdb::DB;
+use std::collections::HashMap;
 
-use crate::types::types;
+pub use block::*;
+
+use crate::{message, types::types};
 pub struct Blockchain {
-    database:DBCommon
+    database:HashMap<types::BlockID,block::Block>
 }
 
 impl Blockchain {
-    pub fn new() -> Blockchain {
-        let path = "./blockchain";
-        let db = DB::open_default(path).unwrap();
+    pub fn new(id:String) -> Blockchain {
+        let database = HashMap::new();
 
         Blockchain{
-            database:db
+            database
         }
     }
 
-    pub fn commit_block(self, block:Block) {
-        self.database.put(block.block_id, block);
+    pub fn commit_block(&mut self, block:Block) {
+        let block_id = block.block_id.clone();
+        self.database.insert(block_id, block);
     }
 
 }

@@ -1,7 +1,7 @@
 use core::str;
 use std::sync::{Arc, Mutex};
 
-use log::info;
+use log::{error, info};
 use ring:: {
     digest::{Context, Digest, SHA256}, rand, signature::{
         self, EcdsaKeyPair, EcdsaVerificationAlgorithm, KeyPair, UnparsedPublicKey, VerificationAlgorithm, ECDSA_P256_SHA256_ASN1_SIGNING, ECDSA_P256_SHA256_FIXED, ECDSA_P256_SHA256_FIXED_SIGNING
@@ -27,7 +27,9 @@ impl Crypto {
 
 pub fn make_signature(key_pair:&EcdsaKeyPair, serialized_message:&Vec<u8>) -> Vec<u8> {
     let rng = rand::SystemRandom::new();
-    let signature = key_pair.sign(&rng, serialized_message).unwrap();
+    let signature = key_pair.sign(&rng, serialized_message).map_err(|e| {
+        error!("make signature {:?}", e)
+    }).unwrap();
     
     signature.as_ref().to_vec()
 }

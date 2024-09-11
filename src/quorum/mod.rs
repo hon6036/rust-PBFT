@@ -43,7 +43,7 @@ impl Quorum {
                     let check_2f = Self::check_2f_plus_1(&message, quorum);
 
                     if check_2f.is_right() {
-                        info!("prepare message aleady satisfied");
+                        info!("commit message aleady satisfied");
                         return either::Right(false)
                     } else {
                         let message = check_2f.left().unwrap();
@@ -51,10 +51,10 @@ impl Quorum {
                         entry.insert(message.proposer.clone(), message.clone());
                         let check_2f = Self::check_2f_plus_1(&message, quorum);
                         if check_2f.is_left() {
-                            info!("prepare message is not enuough to continue process");
+                            info!("commit message is not enuough to continue process");
                             return either::Right(false)
                         } else {
-                            info!("prepare message is enough to continue process");
+                            info!("commit message is enough to continue process");
                             return either::Left(message::Message::Commit(message))
                         }
                     }

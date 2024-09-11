@@ -12,6 +12,7 @@ mod mempool;
 mod crypto;
 mod blockchain;
 mod quorum;
+use log::error;
 use serde::Deserialize;
 use std::fs;
 use std::error::Error;
@@ -44,6 +45,7 @@ fn main() {
         });
         handles.push(handle)
     }
+    
 
     for handle in handles{
         handle.join().unwrap()

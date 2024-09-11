@@ -1,7 +1,7 @@
 use crate::{message, types};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Block {
     pub block_id: types::BlockID,
     pub block_height: types::BlockHeight,
@@ -11,6 +11,7 @@ pub struct Block {
     pub proposer: types::Identity,
     pub parent_block_id: types::BlockID
 }
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BlockWithoutSignature {
     pub payload: Vec<message::Transaction>,
