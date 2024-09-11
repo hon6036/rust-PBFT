@@ -114,12 +114,12 @@ impl Replica {
         if view == 1 {
             if id == 1.to_string() {
                 let mut consensus = consensus.lock().unwrap();
-                consensus.make_block(mempool.clone());
+                consensus.make_block(mempool.clone(), view);
             }
         }
         while let Some(view) = view_hanlder.recv().await {
             let mut consensus = consensus.lock().unwrap();
-            consensus.make_block(mempool.clone())
+            consensus.make_block(mempool.clone(), view)
         }
         
     }

@@ -2,7 +2,7 @@ use log::{debug, info};
 use ring::signature::{EcdsaKeyPair, KeyPair, UnparsedPublicKey, ECDSA_P256_SHA256_FIXED, ECDSA_P256_SHA256_FIXED_SIGNING};
 use tokio::{runtime::Runtime, sync::mpsc::Sender};
 
-use crate::{blockchain::{block, BlockWithoutSignature}, crypto::{self, *}, crypto::{*}, load_config, mempool::*, message::{self, *}, quorum::{self, CommitQuroum, PrePareQuroum, Quorum}, socket::*, types::{self, Identity}};
+use crate::{blockchain::{self, block, BlockWithoutSignature}, crypto::{self, *}, crypto::{*}, load_config, mempool::*, message::{self, *}, quorum::{self, CommitQuroum, PrePareQuroum, Quorum}, socket::*, types::{self, Identity}};
 use core::time;
 use std::{collections::HashMap, sync::{Arc, Mutex}, thread::sleep};
 
@@ -14,7 +14,9 @@ pub struct PBFT {
     view_channel_tx: Sender<types::View>,
     current_prepare_quorum_certificate: types::View,
     prepare_quorum: Quorum,
-    commit_quorum: Quorum
+    commit_quorum: Quorum,
+    blockchain: blockchain::Blockchain,
+    agreeing_block: blockchain::Block
 }
 
 
@@ -28,7 +30,9 @@ impl PBFT{
         let prepare_quorum = quorum::Quorum::PrePareQuroum(prepare_quorum);
         let commit_quorum = CommitQuroum::new(replica_number);
         let commit_quorum = quorum::Quorum::CommitQuroum(commit_quorum);
-        PBFT{id, socket, publickeys, key_pair, view_channel_tx, current_prepare_quorum_certificate, prepare_quorum, commit_quorum}
+        let blockchain = blockchain::Blockchain::new();
+        let agreeing_block:blockchain::Block = {};
+        PBFT{id, socket, publickeys, key_pair, view_channel_tx, current_prepare_quorum_certificate, prepare_quorum, commit_quorum, blockchain, agreeing_block}
     }
 
     pub fn exchange_publickey(&self){
@@ -47,18 +51,25 @@ impl PBFT{
 
     }
 
-    pub fn make_block(&self, mempool:Arc<Mutex<MemPool>>) {
+    pub fn make_block(&self, mempool:Arc<Mutex<MemPool>>, view:types::View) {
         info!("make block start");
         let mut mempool = mempool.lock().unwrap();
         let config = load_config().unwrap();
         let batch_size = config.batch_size;
         let payload = mempool.payload(batch_size);
-        info!("payload Size {:?}", payload.len());
+        if view == 1 {
+            let parent_block_id = "0000000000000000000000000000000000000000000000000000000000000000";
+            let block_height = 1;
+        } else {
+            let parent_block_id = self.agreeing_block.block_id;
+            let block_height = self.agreeing_block.block_height;
+        }
         let block_without_signature: BlockWithoutSignature = block::BlockWithoutSignature {
             payload,
-            view: 1,
-            block_height: 1,
-            proposer: 1.to_string()
+            view,
+            block_height,
+            proposer: 1.to_string(),
+            parent_block_id
         };
         let block_id = make_block_id(&block_without_signature);
         let serialized_block = serde_json::to_vec(&block_without_signature).unwrap();
@@ -69,9 +80,11 @@ impl PBFT{
             block_id,
             payload,
             signature,
-            block_height: 1,
-            view: 1,
-            proposer: id.to_string()
+            block_height,
+            view,
+            proposer: id.to_string(),
+            parent_block_id
+
         };
         let socket = self.socket.clone();
         let mut socket = socket.lock().unwrap();

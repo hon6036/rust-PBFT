@@ -14,9 +14,9 @@ impl Consensus {
             Consensus::PBFT(pbft) => pbft.exchange_publickey()
         }
     }
-    pub fn make_block(&self, mempool:Arc<Mutex<MemPool>>) {
+    pub fn make_block(&self, mempool:Arc<Mutex<MemPool>>, view:types::View) {
         match self {
-            Consensus::PBFT(pbft) => pbft.make_block(mempool)
+            Consensus::PBFT(pbft) => pbft.make_block(mempool, view)
         }
     }
     pub fn store_publickey(&mut self, id:types::Identity, publickey: Vec<u8>) {

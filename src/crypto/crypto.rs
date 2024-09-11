@@ -41,7 +41,8 @@ pub fn verify_signature(proposer_publicekey:Vec<u8>, message:message::Message) -
                 payload: message.block.payload,
                 view: message.block.view,
                 block_height: message.block.block_height,
-                proposer: message.block.proposer
+                proposer: message.block.proposer,
+                parent_block_id: message.block.parent_block_id
             };
             let serialized_block = serde_json::to_vec(&block_without_signature).unwrap();
             match proposer_publicekey.verify(&serialized_block, message.block.signature.as_ref()) {
