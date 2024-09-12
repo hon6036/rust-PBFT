@@ -99,14 +99,23 @@ impl PBFT{
 
         };
         self.agreeing_block = block.clone();
-        let socket = self.socket.clone();
-        let mut socket = socket.lock().map_err(|poisoned| {
-            error!("Socket is poisoned {:?}", poisoned);
-        }).unwrap();
         let preprepare_message = message::PrePrePare {
             block
         };
-        socket.broadcast(message::Message::PrePrePare(preprepare_message))
+        let socket = self.socket.clone();
+        match socket.try_lock() {
+            Ok(mut socket) => {
+                info!("asd");
+                socket.broadcast(message::Message::PrePrePare(preprepare_message))
+            },
+            Err(e) => {
+                error!("Mutex is {:?}", e);
+            },
+        };
+        // let mut socket = socket.lock().map_err(|poisoned| {
+        //     error!("Socket is poisoned {:?}", poisoned);
+        // }).unwrap();
+       
     }
 
 
@@ -124,15 +133,12 @@ impl PBFT{
         let view = preprepare_message.block.view.clone();
         let block_height = preprepare_message.block.block_height.clone();
         let socket = self.socket.clone();
-        let mut socket = socket.lock().map_err(|poisoned| {
-            error!("Socket is poisoned {:?}", poisoned);
-        }).unwrap();
         let prepare_message_without_signature = message::PrePareWithoutSignature {
             view,
             block_height,
             proposer: self.id.clone()
         };
-
+        
         let serialized_message = serde_json::to_vec(&prepare_message_without_signature).map_err(|e| {
             error!("Serialized prepare message without signature {:?}", e)
         }).unwrap();
@@ -143,8 +149,17 @@ impl PBFT{
             proposer: self.id.clone(),
             signature
         };
-        Self::process_prepare(self, prepare_message.clone());
-        socket.broadcast(message::Message::PrePare(prepare_message))
+        let socket = self.socket.clone();
+        match socket.try_lock() {
+            Ok(mut socket) => {
+                info!("asd");
+                socket.broadcast(message::Message::PrePare(prepare_message.clone()))
+            },
+            Err(e) => {
+                error!("Mutex is {:?}", e);
+            },
+        };
+        Self::process_prepare(self, prepare_message);
         // sleep(time::Duration::new(1, 0));
         // let rt = Runtime::new().unwrap();
         // rt.block_on(self.advance_view());
@@ -198,10 +213,7 @@ impl PBFT{
                 info!("{:?} start process_messages", self.id);
                 let view = prepare_message.view.clone();
                 let block_height = prepare_message.block_height.clone();
-                let socket = self.socket.clone();
-                let mut socket = socket.lock().map_err(|poisoned| {
-                    error!("Socket is poisoned {:?}", poisoned);
-                }).unwrap();
+                info!("{:?} soket lock complete", self.id);
                 let commit_message_without_signature = message::CommitWithoutSignature {
                     view,
                     block_height,
@@ -213,18 +225,27 @@ impl PBFT{
                     error!("Serialized commit message without signature {:?}", e)
                 }).unwrap();
                 info!("{:?} start make commit message signature", self.id);
-
+                
                 let signature = make_signature(&self.key_pair, &serialized_message);
                 info!("{:?} finish make commit message signature", self.id);
-
+                
                 let commit_message = message::Commit {
                     view,
                     block_height,
                     proposer: self.id.clone(),
                     signature
                 };
-                self.process_commit(commit_message.clone());
-                socket.broadcast(message::Message::Commit(commit_message))
+                let socket = self.socket.clone();
+                match socket.try_lock() {
+                    Ok(mut socket) => {
+                        info!("asd");
+                        socket.broadcast(message::Message::Commit(commit_message.clone()))
+                    },
+                    Err(e) => {
+                        error!("Mutex is {:?}", e);
+                    },
+                };
+                self.process_commit(commit_message);
             },
             Message::Commit(commit_message) => {
                 let commit_message = commit_message;

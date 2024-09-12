@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::io::prelude::*;
 use std::net::TcpStream;
 use bincode::serialize;
+use log::info;
 use crate::load_config;
 use crate::types::*;
 use crate::message::Message;
@@ -27,6 +28,7 @@ impl Socket {
         let to_i32 : i32 = to.parse().expect("Not a vaild number");
         match self.nodes.get(&to) {
             Some(mut stream) => {
+                info!("send");
                 let _ = stream.write_all(byte_message);
             },
             None => {
@@ -38,8 +40,10 @@ impl Socket {
     }
 
     pub fn broadcast(&mut self, message:Message) {
+        info!("broadcast");
         let byte_vector: Vec<u8> = serialize(&message).expect("Failed to serialize message");
         let byte_message: &[u8] = &byte_vector;
+        info!("broadcast serialized");
         let config = load_config().unwrap();
         for i in 0..config.replica_number {
             if i.to_string() == self.id {

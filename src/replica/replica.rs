@@ -33,7 +33,7 @@ impl Replica {
     pub fn new(id: i32, consensus:String, replica_number:i32) -> Replica {
         info!(" [{}] {} Replica started", id, consensus);
         let (transaction_channel_tx, transaction_channel_rx) = channel::<message::Transaction>(100);
-        let (view_channel_tx, view_channel_rx) = channel::<types::View>(100);
+        let (view_channel_tx, view_channel_rx) = channel::<types::View>(1000);
         let transport = Transport::new(id);
         let crypto = Crypto::new();
         let mempool = MemPool::new();
