@@ -9,9 +9,9 @@ pub enum Consensus {
 }
 
 impl Consensus {
-    pub fn exchange_publickey(&self) {
+    pub fn exchange_verifying_key(&self) {
         match self {
-            Consensus::PBFT(pbft) => pbft.exchange_publickey()
+            Consensus::PBFT(pbft) => pbft.exchange_verifying_key()
         }
     }
     pub fn make_block(&mut self, mempool:Arc<Mutex<MemPool>>, view:types::View) {
@@ -19,9 +19,9 @@ impl Consensus {
             Consensus::PBFT(pbft) => pbft.make_block(mempool, view)
         }
     }
-    pub fn store_publickey(&mut self, id:types::Identity, publickey: Vec<u8>) {
+    pub fn store_verifyingkey(&mut self, id:types::Identity, verifyingkey: Vec<u8>) {
         match self {
-            Consensus::PBFT(pbft) => pbft.store_publickey(id,publickey)
+            Consensus::PBFT(pbft) => pbft.store_verifyingkey(id,verifyingkey)
         }
     }
     pub fn process_preprepare(&mut self, message: PrePrePare) {

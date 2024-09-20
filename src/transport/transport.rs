@@ -41,7 +41,7 @@ impl Transport {
                                 Message::PrePrePare(data) => Replica::handle_preprepare_message(consensus.clone(),id.clone(),data),
                                 Message::PrePare(data) => Replica::handle_prepare_message(consensus.clone(), id.clone(),data),
                                 Message::Commit(data) => Replica::handle_commit_message(consensus.clone(), id.clone(),data),
-                                Message::PublicKey(data) => Replica::handle_publickey_message(consensus.clone(), id.clone(),data),
+                                Message::Verifyingkey(data) => Replica::handle_verifyingkey_message(consensus.clone(), id.clone(),data),
                             }
                         }
                         Err(err) => {

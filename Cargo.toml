@@ -26,3 +26,9 @@ serde = {version= "1.0.207", features = ["derive"]}
 serde_json = "1.0.124"
 tokio = {version= "1.4", features = ["full"]}
 toml = "0.8.19"
+revm = "14.0.2"
+ecdsa = {version="0.16.9", features = ["serde"]}
+rand_core = "0.6.4"
+k256 = {version="0.13.3", features = ["serde", "ecdsa"]}
+digest = "0.10.7"
+sha2 = "0.10.8"

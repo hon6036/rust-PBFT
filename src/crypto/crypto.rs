@@ -1,9 +1,13 @@
 use core::str;
 use std::sync::{Arc, Mutex};
-
+use k256::{Secp256k1};
+use rand_core::OsRng;
+use ecdsa::{signature::{Signer}, Signature, SigningKey, VerifyingKey};
 use log::{error, info};
+use digest::{Digest, Output};
+use sha2::{Sha256};
 use ring:: {
-    digest::{Context, Digest, SHA256}, rand, signature::{
+    digest::{Context, SHA256}, rand, signature::{
         self, EcdsaKeyPair, EcdsaVerificationAlgorithm, KeyPair, UnparsedPublicKey, VerificationAlgorithm, ECDSA_P256_SHA256_ASN1_SIGNING, ECDSA_P256_SHA256_FIXED, ECDSA_P256_SHA256_FIXED_SIGNING
     }
 };
@@ -13,25 +17,25 @@ use crate::{blockchain::{block, BlockWithoutSignature}, message, types};
 
 
 pub struct Crypto {
-    pub(crate) key_pair: EcdsaKeyPair
+    pub(crate) signing_key: SigningKey<Secp256k1>,
+    pub(crate) verifying_key: VerifyingKey<Secp256k1>,
 }
 
 impl Crypto {
     pub fn new() -> Crypto {
-        let rng = rand::SystemRandom::new();
-        let pkcs8 = EcdsaKeyPair::generate_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, &rng).unwrap();
-        let key_pair = EcdsaKeyPair::from_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, &pkcs8.as_ref(), &rng).unwrap();
-       Crypto{key_pair}
+        let signing_key = SigningKey::random(&mut OsRng);
+        let verifying_key = VerifyingKey::from(&signing_key);
+
+        // let rng = rand::SystemRandom::new();
+        // let pkcs8 = EcdsaKeyPair::generate_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, &rng).unwrap();
+        // let key_pair = EcdsaKeyPair::from_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, &pkcs8.as_ref(), &rng).unwrap();
+       Crypto{signing_key, verifying_key}
     }
 }
 
-pub fn make_signature(key_pair:&EcdsaKeyPair, serialized_message:&Vec<u8>) -> Vec<u8> {
-    let rng = rand::SystemRandom::new();
-    let signature = key_pair.sign(&rng, serialized_message).map_err(|e| {
-        error!("make signature {:?}", e)
-    }).unwrap();
-    
-    signature.as_ref().to_vec()
+pub fn make_signature(mut signing_key:SigningKey<Secp256k1>, serialized_message:&Vec<u8>) -> Signature<Secp256k1>{
+    let (signature, recovery_id) = SigningKey::sign_prehash_recoverable(&signing_key, serialized_message).unwrap();
+    signature
 }
 
 pub fn verify_signature(proposer_publicekey:Vec<u8>, message:message::Message) -> bool {
@@ -82,7 +86,7 @@ pub fn verify_signature(proposer_publicekey:Vec<u8>, message:message::Message) -
                 Err(_) => false,
             }
         },
-        message::Message::PublicKey(_) => false,
+        message::Message::Verifyingkey(_) => false,
     }
 
 }

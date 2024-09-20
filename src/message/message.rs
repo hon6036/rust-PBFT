@@ -5,9 +5,9 @@ use serde::{Deserialize, Serialize};
 
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct PublicKey {
+pub struct Verifyingkey {
     pub id: types::Identity,
-    pub publickey: Vec<u8>
+    pub verifyingkey: Vec<u8>
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

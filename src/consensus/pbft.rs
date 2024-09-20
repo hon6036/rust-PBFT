@@ -1,3 +1,5 @@
+use ecdsa::{Signature, SigningKey, VerifyingKey};
+use k256::Secp256k1;
 use log::{error, info};
 use ring::signature::{EcdsaKeyPair, KeyPair, UnparsedPublicKey, ECDSA_P256_SHA256_FIXED, ECDSA_P256_SHA256_FIXED_SIGNING};
 use tokio::{runtime::Runtime, sync::mpsc::Sender};
@@ -9,8 +11,9 @@ use std::{collections::HashMap, sync::{Arc, Mutex}, thread::sleep};
 pub struct PBFT {
     id: Identity,
     socket: Arc<Mutex<socket::Socket>>,
-    publickeys: HashMap<Identity,Vec<u8>>,
-    key_pair: EcdsaKeyPair,
+    verifyingkeys: HashMap<Identity,Vec<u8>>,
+    signing_key: SigningKey<Secp256k1>,
+    verifying_key: VerifyingKey<Secp256k1>,
     view_channel_tx: Sender<types::View>,
     current_prepare_quorum_certificate: types::View,
     prepare_quorum: Quorum,
@@ -21,10 +24,10 @@ pub struct PBFT {
 
 
 impl PBFT{
-    pub fn new(id: i32, key_pair:EcdsaKeyPair, view_channel_tx: Sender<types::View>, replica_number:i32) -> PBFT{
+    pub fn new(id: i32, signing_key:SigningKey<Secp256k1>, verifying_key:VerifyingKey<Secp256k1>, view_channel_tx: Sender<types::View>, replica_number:i32) -> PBFT{
         let id = id.to_string();
         let socket = Arc::new(Mutex::new(Socket::new(id.clone())));
-        let publickeys = HashMap::new();
+        let verifyingkeys = HashMap::new();
         let current_prepare_quorum_certificate = 1;
         let prepare_quorum = PrePareQuroum::new(replica_number);
         let prepare_quorum = quorum::Quorum::PrePareQuroum(prepare_quorum);
@@ -32,24 +35,27 @@ impl PBFT{
         let commit_quorum = quorum::Quorum::CommitQuroum(commit_quorum);
         let blockchain = blockchain::Blockchain::new(id.clone());
         let agreeing_block = block::Block::default();
-        PBFT{id, socket, publickeys, key_pair, view_channel_tx, current_prepare_quorum_certificate, prepare_quorum, commit_quorum, blockchain, agreeing_block}
+        PBFT{id, socket, verifyingkeys, signing_key, verifying_key, view_channel_tx, current_prepare_quorum_certificate, prepare_quorum, commit_quorum, blockchain, agreeing_block}
     }
 
-    pub fn exchange_publickey(&self){
-        let publickey = self.key_pair.public_key().as_ref();
+    pub fn exchange_verifying_key(&self){
+        let verifyingkey = self.verifying_key;
+        let serialized_verifyingkey = verifyingkey.to_sec1_bytes();
+        // let asd = serialized_verifyingkey.to_vec();
+        // let qwe: VerifyingKey<Secp256k1> = VerifyingKey::from_sec1_bytes(&asd).unwrap();
         let socket = self.socket.clone();
         let mut socket = socket.lock().map_err(|poisoned| {
             error!("Socket is poisoned {:?}", poisoned);
         }).unwrap();
-        let publickey = message::PublicKey {
+        let verifyingkey = message::Verifyingkey {
             id: self.id.to_string(),
-            publickey: publickey.to_vec()
+            verifyingkey: serialized_verifyingkey.to_vec()
         };
-        socket.broadcast(message::Message::PublicKey(publickey))
+        socket.broadcast(message::Message::Verifyingkey(verifyingkey))
     }
 
-    pub fn store_publickey(&mut self, id:types::Identity,publickey: Vec<u8>) {
-        self.publickeys.insert(id,publickey);
+    pub fn store_verifyingkey(&mut self, id:types::Identity,verifyingkey: Vec<u8>) {
+         self.verifyingkeys.insert(id,verifyingkey);
 
     }
 
@@ -85,7 +91,8 @@ impl PBFT{
         let serialized_block = serde_json::to_vec(&block_without_signature).map_err(|e| {
             error!("Serialized block without signature {:?}", e)
         }).unwrap();
-        let signature = make_signature(&self.key_pair, &serialized_block);
+        let signature = make_signature(self.signing_key.clone(), &serialized_block);
+        let signature = Signature::to_vec(&signature);
         let payload = block_without_signature.payload;
         let id = &self.id;
         let block = block::Block{
@@ -121,7 +128,7 @@ impl PBFT{
 
     pub fn process_preprepare(&mut self,  preprepare_message: PrePrePare) {
         info!("start processing block");
-        let proposer_publickey = self.publickeys.get(&preprepare_message.block.proposer).unwrap();
+        let proposer_publickey = self.verifyingkeys.get(&preprepare_message.block.proposer).unwrap();
         let message = message::Message::PrePrePare(preprepare_message.clone());
         if verify_signature(proposer_publickey.to_owned(), message) {
             info!("success to verify block");
@@ -132,7 +139,6 @@ impl PBFT{
 
         let view = preprepare_message.block.view.clone();
         let block_height = preprepare_message.block.block_height.clone();
-        let socket = self.socket.clone();
         let prepare_message_without_signature = message::PrePareWithoutSignature {
             view,
             block_height,
@@ -142,7 +148,8 @@ impl PBFT{
         let serialized_message = serde_json::to_vec(&prepare_message_without_signature).map_err(|e| {
             error!("Serialized prepare message without signature {:?}", e)
         }).unwrap();
-        let signature = make_signature(&self.key_pair, &serialized_message);
+        let signature = make_signature(self.signing_key.clone(), &serialized_message);
+        let signature = Signature::to_vec(&signature);
         let prepare_message = message::PrePare {
             view,
             block_height,
@@ -170,7 +177,7 @@ impl PBFT{
     pub fn process_prepare(&mut self, prepare_message: PrePare) {
         info!("{:?} start process_prepare", self.id.clone());
         if self.id != prepare_message.proposer {
-            let proposer_publickey = self.publickeys.get(&prepare_message.proposer).expect("fail to get proposer's publickey");
+            let proposer_publickey = self.verifyingkeys.get(&prepare_message.proposer).expect("fail to get proposer's publickey");
             let message = message::Message::PrePare(prepare_message.clone());
             if verify_signature(proposer_publickey.to_owned(), message) {
                 info!("{:?} success to verify {:?} prepare message", self.id.clone(), prepare_message.proposer);
@@ -190,7 +197,7 @@ impl PBFT{
     pub fn process_commit(&mut self, commit_message: Commit) {
         info!("{:?} start process_commit", self.id);
         if self.id != commit_message.proposer {
-            let proposer_publickey = self.publickeys.get(&commit_message.proposer).expect("fail to get proposer's publickey");
+            let proposer_publickey = self.verifyingkeys.get(&commit_message.proposer).expect("fail to get proposer's publickey");
             let message = message::Message::Commit(commit_message.clone());
             if verify_signature(proposer_publickey.to_owned(), message) {
                 info!("{:?} success to verify {:?} commit message", self.id.clone(), commit_message.proposer);
@@ -226,7 +233,8 @@ impl PBFT{
                 }).unwrap();
                 info!("{:?} start make commit message signature", self.id);
                 
-                let signature = make_signature(&self.key_pair, &serialized_message);
+                let signature = make_signature(self.signing_key.clone(), &serialized_message);
+                let signature = Signature::to_vec(&signature);
                 info!("{:?} finish make commit message signature", self.id);
                 
                 let commit_message = message::Commit {

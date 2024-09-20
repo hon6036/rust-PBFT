@@ -1,3 +1,4 @@
+mod client;
 extern crate log4rs;
 use reqwest::Client;
 use std::fs;
@@ -46,10 +47,11 @@ async fn main() {
     log4rs::init_file(log_file, Default::default()).unwrap();
     let config = load_config().unwrap();
     let client = reqwest::Client::new();
-    let address = config.http_address;
+    let http_address = config.http_address;
+    let sender = Client::new();
     for _i in 0..config.transaction_number{
         let transaction = make_transaction();
         let transaction = serde_json::to_string(&transaction).unwrap();
-        let _ = send_transaction(client.clone(), transaction, address.clone()).await;
+        let _ = send_transaction(client.clone(), transaction, http_address.clone()).await;
     }
 }

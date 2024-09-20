@@ -1,5 +1,12 @@
 
-use ring::signature::EcdsaKeyPair;
+use ecdsa::{SigningKey, VerifyingKey};
+use k256::Secp256k1;
+use rand_core::OsRng;
+use revm::db::{self, Database, EmptyDB};
+use revm::inspectors::NoOpInspector;
+use revm::primitives::Address;
+use revm::{inspector_handle_register, Evm, InMemoryDB};
+use ring::rand::*;
 use tokio::sync::mpsc::{
     Receiver, Sender, channel
 };
@@ -12,7 +19,7 @@ use crate::consensus::{self, Consensus};
 use crate::crypto::{self, Crypto};
 use crate::mempool::MemPool;
 use crate::{load_config, mempool, message, transport::*};
-use crate::message::{PrePare, PrePrePare, PublicKey, Commit};
+use crate::message::{PrePare, PrePrePare, Verifyingkey, Commit};
 use crate::types::*;
 use crate::http::*;
 use log::{info, error};
@@ -37,9 +44,16 @@ impl Replica {
         let transport = Transport::new(id);
         let crypto = Crypto::new();
         let mempool = MemPool::new();
+        let database = InMemoryDB::new(EmptyDB::new());
+        // database.insert_account_info(address, info);
+        let mut evm = Evm::builder()
+        .with_db(EmptyDB::default())
+        .with_external_context(NoOpInspector)
+        .append_handler_register(inspector_handle_register)
+        .build();
         let consensus = match consensus.as_str() {
             "pbft" => Some(consensus::Consensus::PBFT(
-                consensus::PBFT::new(id, crypto.key_pair, view_channel_tx, replica_number)
+                consensus::PBFT::new(id, crypto.signing_key, crypto.verifying_key, view_channel_tx, replica_number)
             )),
             _ => {
                 error!("Consensus name is not matched");
@@ -93,7 +107,7 @@ impl Replica {
             }
         });
         handles.push(handle);
-        Self::exchange_publickey(consensus);
+        Self::exchange_verifying_key(consensus);
         sleep(Duration::new(2,0));
         let view:types::View = 1;
         rt.spawn(async move{
@@ -105,9 +119,9 @@ impl Replica {
     }
 
     
-    pub fn exchange_publickey(consensus:Arc<Mutex<Consensus>>) {
+    pub fn exchange_verifying_key(consensus:Arc<Mutex<Consensus>>) {
         let consensus = consensus.lock().unwrap();
-        consensus.exchange_publickey();
+        consensus.exchange_verifying_key();
     }
 
     pub async fn handle_advance_view(id:types::Identity, consensus:Arc<Mutex<Consensus>>, mempool:Arc<Mutex<mempool::MemPool>>, mut view_hanlder: Receiver<types::View>, view:types::View) {
@@ -133,10 +147,10 @@ impl Replica {
         }
     }
 
-    pub fn handle_publickey_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PublicKey) {
+    pub fn handle_verifyingkey_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: message::Verifyingkey) {
         info!("[{:?}] publickey Message {:?}", id,message);
         let mut consensus = consensus.lock().unwrap();
-        consensus.store_publickey(message.id,message.publickey)
+        consensus.store_verifyingkey(message.id,message.verifyingkey)
         
     }
     pub fn handle_preprepare_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PrePrePare) {
@@ -157,4 +171,10 @@ impl Replica {
         let mut consensus = consensus.lock().unwrap();
         consensus.process_commit(message)
     }
+}
+
+fn generate_random_address() -> Address {
+    let sigingkey = SigningKey::random(&mut OsRng);
+    let verifyingkey = VerifyingKey::from(&sigingkey);
+    Address::from_public_key(&verifyingkey)
 }
