@@ -32,3 +32,4 @@ rand_core = "0.6.4"
 k256 = {version="0.13.3", features = ["serde", "ecdsa"]}
 digest = "0.10.7"
 sha2 = "0.10.8"
+rand = "0.8.5"

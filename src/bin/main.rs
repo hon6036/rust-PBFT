@@ -1,16 +1,21 @@
 mod client;
 extern crate log4rs;
+use log::info;
+use rand::Rng;
 use reqwest::Client;
-use std::fs;
+use std::{env, fs};
 use std::error::Error;
 use std::path::Path;
 use serde::{Serialize,Deserialize};
+use std::fs::{OpenOptions,File};
+use std::io::{BufRead, BufReader, Write};
+
 #[derive(Deserialize)]
 pub struct ClientConfig {
     transaction_number: i32,
     http_address: String
 }
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct Transaction {
     sender: String,
     receiver: String,
@@ -25,12 +30,42 @@ fn load_config() -> Result<ClientConfig, Box<dyn Error>> {
 }
 
 fn make_transaction() -> Transaction {
+    let file_path = "address.txt";
+    let mut file = File::open(file_path).unwrap();
+    let reader = BufReader::new(file);
+    let line_count = reader.lines().count();
+
+    let mut file = File::open(file_path).unwrap();
+    let reader = BufReader::new(file);
+
+    let sender_number = rand::thread_rng().gen_range(0..=line_count);
+    let sender = reader.lines().nth(sender_number).unwrap().unwrap();
+    
+    let mut file = File::open(file_path).unwrap();
+    let reader = BufReader::new(file);
+
+    let receiver_number = rand::thread_rng().gen_range(0..=line_count);
+    let receiver = reader.lines().nth(receiver_number).unwrap().unwrap();
+
+    let balance = rand::thread_rng().gen_range(0..=10000);
     let transaction = Transaction {
-        sender: "1".to_string(),
-        receiver: "2".to_string(),
-        balance: 12,
+        sender,
+        receiver,
+        balance
     };
     transaction
+}
+
+fn make_clients_address() {
+    let file_path = "address.txt";
+    let mut file = OpenOptions::new()
+        .append(true)
+        .open(file_path)
+        .expect("Cannot open file");
+    for _i in 0..10000 {
+        let client = client::Client::new();
+        writeln!(file, "{}", client.address).expect("Fail to write file");
+    }
 }
 
 async fn send_transaction(client:Client, transaction:String, address: String) -> Result<reqwest::Response, reqwest::Error> {
@@ -48,9 +83,10 @@ async fn main() {
     let config = load_config().unwrap();
     let client = reqwest::Client::new();
     let http_address = config.http_address;
-    let sender = Client::new();
+    // make_clients_address()
     for _i in 0..config.transaction_number{
         let transaction = make_transaction();
+        info!("{:?}", transaction);
         let transaction = serde_json::to_string(&transaction).unwrap();
         let _ = send_transaction(client.clone(), transaction, http_address.clone()).await;
     }

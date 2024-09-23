@@ -2476,6 +2476,7 @@ dependencies = [
  "k256",
  "log",
  "log4rs",
+ "rand",
  "rand_core",
  "reqwest",
  "revm",
