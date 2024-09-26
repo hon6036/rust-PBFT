@@ -21,7 +21,6 @@ either = "1.13.0"
 log = "0.4.22"
 log4rs = "1.3.0"
 reqwest = "0.12.7"
-ring = "0.17.8"
 serde = {version= "1.0.207", features = ["derive"]}
 serde_json = "1.0.124"
 tokio = {version= "1.4", features = ["full"]}
@@ -33,3 +32,4 @@ k256 = {version="0.13.3", features = ["serde", "ecdsa"]}
 digest = "0.10.7"
 sha2 = "0.10.8"
 rand = "0.8.5"
+ring = "0.17.8"

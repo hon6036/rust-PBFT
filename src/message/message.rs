@@ -45,7 +45,7 @@ pub struct CommitWithoutSignature{
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Transaction {
-    sender: types::Identity,
-    receiver: types::Identity,
-    balance: i32
+    pub from: types::Identity,
+    pub to: types::Identity,
+    pub balance: i32
 }

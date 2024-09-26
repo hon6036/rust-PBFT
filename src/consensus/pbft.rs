@@ -1,9 +1,10 @@
 use ecdsa::{Signature, SigningKey, VerifyingKey};
 use k256::Secp256k1;
 use log::{error, info};
-use ring::signature::{EcdsaKeyPair, KeyPair, UnparsedPublicKey, ECDSA_P256_SHA256_FIXED, ECDSA_P256_SHA256_FIXED_SIGNING};
+use revm::{db::{CacheDB, DbAccount, EmptyDBTyped}, handler, inspector_handle_register, inspectors::NoOpInspector, primitives::{AccountInfo, Address, Bytecode, FixedBytes, HandlerCfg, TxEnv, TxKind, U256}, CacheState, Evm, EvmContext, Handler, InMemoryDB, JournaledState};
 use tokio::{runtime::Runtime, sync::mpsc::Sender};
-
+use std::{collections::HashSet, convert::Infallible, fs::File, hash::{DefaultHasher, Hash, Hasher}, str::FromStr};
+use std::io::{BufRead, BufReader};
 use crate::{blockchain::{self, block, BlockWithoutSignature}, crypto::{self, *}, crypto::{*}, load_config, mempool::*, message::{self, *}, quorum::{self, CommitQuroum, PrePareQuroum, Quorum}, socket::*, types::{self, Identity}};
 use core::time;
 use std::{collections::HashMap, sync::{Arc, Mutex}, thread::sleep};
@@ -19,7 +20,9 @@ pub struct PBFT {
     prepare_quorum: Quorum,
     commit_quorum: Quorum,
     blockchain: blockchain::Blockchain,
-    agreeing_block: blockchain::Block
+    agreeing_block: blockchain::Block,
+    journaled_state: JournaledState,
+    in_memory_db: CacheDB<EmptyDBTyped<Infallible>>
 }
 
 
@@ -35,7 +38,29 @@ impl PBFT{
         let commit_quorum = quorum::Quorum::CommitQuroum(commit_quorum);
         let blockchain = blockchain::Blockchain::new(id.clone());
         let agreeing_block = block::Block::default();
-        PBFT{id, socket, verifyingkeys, signing_key, verifying_key, view_channel_tx, current_prepare_quorum_certificate, prepare_quorum, commit_quorum, blockchain, agreeing_block}
+        let mut in_memory_db = InMemoryDB::new(EmptyDBTyped::new());
+        let spec_id = revm::primitives::SpecId::TANGERINE;
+        let warm_preloaded_addresses = HashSet::new();
+        let mut journaled_state = JournaledState::new(spec_id, warm_preloaded_addresses);
+        let file_path = "address.txt";
+        let mut file = File::open(file_path).unwrap();
+        let reader = BufReader::new(file);
+        let line_count = reader.lines().count();
+        for i in 0..line_count {
+            let mut file = File::open(file_path).unwrap();
+            let reader = BufReader::new(file);
+            let address_str = reader.lines().nth(i).unwrap().unwrap();
+            let address_str = address_str.strip_prefix("0x").unwrap();
+            let address = Address::from_str(address_str).unwrap();
+            let balance:U256 = "10000".parse().unwrap();
+            let code_hash = FixedBytes::ZERO;
+            let code = Bytecode::new();
+            let account_info = AccountInfo::new(balance, 0, code_hash, code);
+            in_memory_db.insert_account_info(address, account_info);
+            journaled_state.load_account(address, &mut in_memory_db);
+        }
+        
+        PBFT{id, socket, verifyingkeys, signing_key, verifying_key, view_channel_tx, current_prepare_quorum_certificate, prepare_quorum, commit_quorum, blockchain, agreeing_block, journaled_state, in_memory_db}
     }
 
     pub fn exchange_verifying_key(&self){
@@ -61,6 +86,7 @@ impl PBFT{
 
     pub fn make_block(&mut self, mempool:Arc<Mutex<MemPool>>, view:types::View) {
         info!("make block start");
+        // self.excute_transaction();
         let mut mempool = mempool.lock().map_err(|poisoned| {
             error!("mempool is poisoned {:?}", poisoned);
         }).unwrap();
@@ -73,19 +99,32 @@ impl PBFT{
             self.process_block(payload, view, block_height, parent_block_id.to_string())
         } else {
             let parent_block_id = self.agreeing_block.block_id.to_string();
-            let block_height = self.agreeing_block.block_height;
+            let block_height = self.current_prepare_quorum_certificate + 1;
             self.process_block(payload, view, block_height, parent_block_id)
         }
         
     }
 
+    pub fn excute_transaction(&mut self, payload:Vec<Transaction>) -> u64 {
+        for transaction in payload {
+            let from = Address::from_str(&transaction.from).unwrap();
+            let to = Address::from_str(&transaction.to).unwrap();
+            let _ = self.journaled_state.transfer(&from, &to, U256::from(5000), &mut self.in_memory_db).unwrap();
+        }
+        let mut hasher = DefaultHasher::new();
+        let _ = &self.journaled_state.journal.hash(&mut hasher);
+        hasher.finish()
+    }
+
     pub fn process_block(&mut self, payload:Vec<Transaction>, view:types::View, block_height:types::BlockHeight, parent_block_id:types::BlockID) {
+        let state = self.excute_transaction(payload.clone());
         let block_without_signature: BlockWithoutSignature = block::BlockWithoutSignature {
             payload,
             view,
             block_height,
             proposer: 1.to_string(),
-            parent_block_id: parent_block_id.clone()
+            parent_block_id: parent_block_id.clone(),
+            state
         };
         let block_id = make_block_id(&block_without_signature);
         let serialized_block = serde_json::to_vec(&block_without_signature).map_err(|e| {
@@ -102,7 +141,8 @@ impl PBFT{
             block_height,
             view,
             proposer: id.to_string(),
-            parent_block_id
+            parent_block_id,
+            state
 
         };
         self.agreeing_block = block.clone();
@@ -112,7 +152,6 @@ impl PBFT{
         let socket = self.socket.clone();
         match socket.try_lock() {
             Ok(mut socket) => {
-                info!("asd");
                 socket.broadcast(message::Message::PrePrePare(preprepare_message))
             },
             Err(e) => {
@@ -134,6 +173,12 @@ impl PBFT{
             info!("success to verify block");
         } else {
             info!("fail to verify block");
+            return
+        }
+
+        let state = self.excute_transaction(preprepare_message.block.payload);
+        if !state.eq(&preprepare_message.block.state) {
+            error!("state dosen't match");
             return
         }
 
@@ -159,7 +204,6 @@ impl PBFT{
         let socket = self.socket.clone();
         match socket.try_lock() {
             Ok(mut socket) => {
-                info!("asd");
                 socket.broadcast(message::Message::PrePare(prepare_message.clone()))
             },
             Err(e) => {
@@ -220,22 +264,18 @@ impl PBFT{
                 info!("{:?} start process_messages", self.id);
                 let view = prepare_message.view.clone();
                 let block_height = prepare_message.block_height.clone();
-                info!("{:?} soket lock complete", self.id);
                 let commit_message_without_signature = message::CommitWithoutSignature {
                     view,
                     block_height,
                     proposer: self.id.clone()
                 };
-                info!("{:?} start serialize commit message without signature", self.id);
                 
                 let serialized_message = serde_json::to_vec(&commit_message_without_signature).map_err(|e| {
                     error!("Serialized commit message without signature {:?}", e)
                 }).unwrap();
-                info!("{:?} start make commit message signature", self.id);
                 
                 let signature = make_signature(self.signing_key.clone(), &serialized_message);
                 let signature = Signature::to_vec(&signature);
-                info!("{:?} finish make commit message signature", self.id);
                 
                 let commit_message = message::Commit {
                     view,
@@ -246,7 +286,6 @@ impl PBFT{
                 let socket = self.socket.clone();
                 match socket.try_lock() {
                     Ok(mut socket) => {
-                        info!("asd");
                         socket.broadcast(message::Message::Commit(commit_message.clone()))
                     },
                     Err(e) => {

@@ -12,7 +12,6 @@ mod mempool;
 mod crypto;
 mod blockchain;
 mod quorum;
-mod evm;
 use log::error;
 use serde::Deserialize;
 use std::fs;

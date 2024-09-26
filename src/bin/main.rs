@@ -17,8 +17,8 @@ pub struct ClientConfig {
 }
 #[derive(Serialize, Debug)]
 pub struct Transaction {
-    sender: String,
-    receiver: String,
+    from: String,
+    to: String,
     balance: i32
 }
 
@@ -38,19 +38,19 @@ fn make_transaction() -> Transaction {
     let mut file = File::open(file_path).unwrap();
     let reader = BufReader::new(file);
 
-    let sender_number = rand::thread_rng().gen_range(0..=line_count);
-    let sender = reader.lines().nth(sender_number).unwrap().unwrap();
+    let from_number = rand::thread_rng().gen_range(0..=line_count);
+    let from = reader.lines().nth(from_number).unwrap().unwrap();
     
     let mut file = File::open(file_path).unwrap();
     let reader = BufReader::new(file);
 
-    let receiver_number = rand::thread_rng().gen_range(0..=line_count);
-    let receiver = reader.lines().nth(receiver_number).unwrap().unwrap();
+    let to_number = rand::thread_rng().gen_range(0..=line_count);
+    let to = reader.lines().nth(to_number).unwrap().unwrap();
 
     let balance = rand::thread_rng().gen_range(0..=10000);
     let transaction = Transaction {
-        sender,
-        receiver,
+        from,
+        to,
         balance
     };
     transaction

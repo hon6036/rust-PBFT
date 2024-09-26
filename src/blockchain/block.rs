@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use crate::{message, types};
+use revm::{primitives::{Account, Address}, JournalEntry};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -9,7 +12,8 @@ pub struct Block {
     pub view: types::View,
     pub signature: Vec<u8>,
     pub proposer: types::Identity,
-    pub parent_block_id: types::BlockID
+    pub parent_block_id: types::BlockID,
+    pub state: u64
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,5 +22,6 @@ pub struct BlockWithoutSignature {
     pub view: types::View,
     pub block_height: types::BlockHeight,
     pub proposer: types::Identity,
-    pub parent_block_id: types::BlockID
+    pub parent_block_id: types::BlockID,
+    pub state: u64
 }
