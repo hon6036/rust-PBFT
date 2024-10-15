@@ -140,7 +140,6 @@ impl Replica {
     
     pub async fn handle_transaction(mempool:Arc<Mutex<mempool::MemPool>>, mut tx_handler: Receiver<message::Transaction>) {
         info!("handle_transaction started");
-
         while let Some(transaction) = tx_handler.recv().await {
             let mut mempool = mempool.lock().unwrap();
             mempool.add_transaction(transaction);
@@ -148,26 +147,26 @@ impl Replica {
     }
 
     pub fn handle_verifyingkey_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: message::Verifyingkey) {
-        info!("[{:?}] publickey Message {:?}", id,message);
+        info!("[{:?}] publickey Message {:?}", id,message.id);
         let mut consensus = consensus.lock().unwrap();
         consensus.store_verifyingkey(message.id,message.verifyingkey)
         
     }
     pub fn handle_preprepare_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PrePrePare) {
-        info!("[{:?}] handle PrePrePare Message {:?}", id,message);
+        info!("[{:?}] handle PrePrePare Message {:?}", id,message.block.view);
         let mut consensus = consensus.lock().unwrap();
         consensus.process_preprepare(message)
         
     }
 
     pub fn handle_prepare_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: PrePare) {
-        info!("[{:?}] handle PrePare Message {:?}", id,message);
+        info!("[{:?}] handle PrePare Message {:?}", id,message.view);
         let mut consensus = consensus.lock().unwrap();
         consensus.process_prepare(message)
     }
 
     pub fn handle_commit_message(consensus:Arc<Mutex<Consensus>>, id: Arc<String>, message: Commit) {
-        info!("[{:?}] handle Commit Message {:?}", id,message);
+        info!("[{:?}] handle Commit Message {:?}", id,message.view);
         let mut consensus = consensus.lock().unwrap();
         consensus.process_commit(message)
     }

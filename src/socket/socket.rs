@@ -40,10 +40,8 @@ impl Socket {
     }
 
     pub fn broadcast(&mut self, message:Message) {
-        info!("broadcast");
         let byte_vector: Vec<u8> = serialize(&message).expect("Failed to serialize message");
         let byte_message: &[u8] = &byte_vector;
-        info!("broadcast serialized");
         let config = load_config().unwrap();
         for i in 0..config.replica_number {
             if i.to_string() == self.id {

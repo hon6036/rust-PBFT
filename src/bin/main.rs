@@ -86,7 +86,6 @@ async fn main() {
     // make_clients_address()
     for _i in 0..config.transaction_number{
         let transaction = make_transaction();
-        info!("{:?}", transaction);
         let transaction = serde_json::to_string(&transaction).unwrap();
         let _ = send_transaction(client.clone(), transaction, http_address.clone()).await;
     }

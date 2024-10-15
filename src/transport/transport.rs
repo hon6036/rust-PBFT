@@ -36,7 +36,6 @@ impl Transport {
                 Ok(_) => {
                     match bincode::deserialize(&buffer) {
                         Ok(parsed_message) => {
-                            info!("received data {:?}", parsed_message);
                             match parsed_message {
                                 Message::PrePrePare(data) => Replica::handle_preprepare_message(consensus.clone(),id.clone(),data),
                                 Message::PrePare(data) => Replica::handle_prepare_message(consensus.clone(), id.clone(),data),
