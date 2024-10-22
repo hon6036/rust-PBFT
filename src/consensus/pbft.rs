@@ -93,6 +93,7 @@ impl PBFT{
         let config = load_config().unwrap();
         let batch_size = config.batch_size;
         let payload = mempool.payload(batch_size);
+        info!("payload size {:?}", payload.len());
         if view == 1 {
             let parent_block_id = "0000000000000000000000000000000000000000000000000000000000000000";
             let block_height = 1;
@@ -295,9 +296,8 @@ impl PBFT{
                 self.process_commit(commit_message);
             },
             Message::Commit(commit_message) => {
-                let commit_message = commit_message;
                 let block = &self.agreeing_block;
-                self.blockchain.commit_block(block.clone());
+                self.blockchain.commit_block(block.clone(), self.id.clone());
                 let rt = Runtime::new().map_err(|e| {
                     error!("Set new runtime at process messages which is commit {:?}", e)
                 }).unwrap();

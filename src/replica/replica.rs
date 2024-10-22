@@ -33,24 +33,20 @@ pub struct Replica{
     transaction_channel_tx: Sender<message::Transaction>,
     transaction_channel_rx: Receiver<message::Transaction>,
     view_channel_rx: Receiver<types::View>,
+    start_signal_tx: Sender<bool>,
+    start_signal_rx: Receiver<bool>,
     mempool: mempool::MemPool,
 }
 impl Replica {
 
     pub fn new(id: i32, consensus:String, replica_number:i32) -> Replica {
         info!(" [{}] {} Replica started", id, consensus);
-        let (transaction_channel_tx, transaction_channel_rx) = channel::<message::Transaction>(100);
+        let (transaction_channel_tx, transaction_channel_rx) = channel::<message::Transaction>(1000);
         let (view_channel_tx, view_channel_rx) = channel::<types::View>(1000);
+        let (start_signal_tx, start_signal_rx) = channel::<bool>(1);
         let transport = Transport::new(id);
         let crypto = Crypto::new();
         let mempool = MemPool::new();
-        let database = InMemoryDB::new(EmptyDB::new());
-        // database.insert_account_info(address, info);
-        let mut evm = Evm::builder()
-        .with_db(EmptyDB::default())
-        .with_external_context(NoOpInspector)
-        .append_handler_register(inspector_handle_register)
-        .build();
         let consensus = match consensus.as_str() {
             "pbft" => Some(consensus::Consensus::PBFT(
                 consensus::PBFT::new(id, crypto.signing_key, crypto.verifying_key, view_channel_tx, replica_number)
@@ -68,7 +64,7 @@ impl Replica {
             port: port.to_string(),
             workers: 4
         };
-        Replica {id, transport, consensus, http, transaction_channel_tx, transaction_channel_rx, view_channel_rx, mempool}
+        Replica {id, transport, consensus, http, transaction_channel_tx, transaction_channel_rx, view_channel_rx, start_signal_tx, start_signal_rx, mempool}
     }
 
     pub fn start(self) {
@@ -86,7 +82,7 @@ impl Replica {
         let mempool_for_advance_view = Arc::clone(&mempool);
         let rt = Runtime::new().unwrap();
         rt.spawn(async move{
-            Self::handle_transaction(mempool_for_generate_payload.clone(), self.transaction_channel_rx).await;
+            Self::handle_transaction(self.start_signal_tx, mempool_for_generate_payload.clone(), self.transaction_channel_rx).await;
         });
         
         let id = Arc::new(self.id.clone());
@@ -108,10 +104,9 @@ impl Replica {
         });
         handles.push(handle);
         Self::exchange_verifying_key(consensus);
-        sleep(Duration::new(2,0));
         let view:types::View = 1;
         rt.spawn(async move{
-            Self::handle_advance_view(self.id, consensus_for_advance_view, mempool_for_advance_view, self.view_channel_rx, view).await;
+            Self::handle_advance_view(self.id, self.start_signal_rx,  consensus_for_advance_view, mempool_for_advance_view, self.view_channel_rx, view).await;
         });
         for handle in handles{
             handle.join().unwrap()
@@ -124,9 +119,10 @@ impl Replica {
         consensus.exchange_verifying_key();
     }
 
-    pub async fn handle_advance_view(id:types::Identity, consensus:Arc<Mutex<Consensus>>, mempool:Arc<Mutex<mempool::MemPool>>, mut view_hanlder: Receiver<types::View>, view:types::View) {
+    pub async fn handle_advance_view(id:types::Identity, mut start_signal_handler: Receiver<bool>, consensus:Arc<Mutex<Consensus>>, mempool:Arc<Mutex<mempool::MemPool>>, mut view_hanlder: Receiver<types::View>, view:types::View) {
         if view == 1 {
             if id == 1.to_string() {
+                let asd = start_signal_handler.recv().await;
                 let mut consensus = consensus.lock().unwrap();
                 consensus.make_block(mempool.clone(), view);
             }
@@ -138,9 +134,14 @@ impl Replica {
         
     }
     
-    pub async fn handle_transaction(mempool:Arc<Mutex<mempool::MemPool>>, mut tx_handler: Receiver<message::Transaction>) {
+    pub async fn handle_transaction(signal_tx: Sender<bool>,mempool:Arc<Mutex<mempool::MemPool>>, mut tx_handler: Receiver<message::Transaction>) {
         info!("handle_transaction started");
+        let mut count = 0;
         while let Some(transaction) = tx_handler.recv().await {
+            if count == 0 {
+                let _ = signal_tx.send(true).await;
+                count += 1
+            }
             let mut mempool = mempool.lock().unwrap();
             mempool.add_transaction(transaction);
         }

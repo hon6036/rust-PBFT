@@ -3,7 +3,10 @@ extern crate log4rs;
 use log::info;
 use rand::Rng;
 use reqwest::Client;
-use std::{env, fs};
+use tokio::task;
+use std::sync::Arc;
+use std::time::SystemTime;
+use std::{env, fs, thread};
 use std::error::Error;
 use std::path::Path;
 use serde::{Serialize,Deserialize};
@@ -13,13 +16,15 @@ use std::io::{BufRead, BufReader, Write};
 #[derive(Deserialize)]
 pub struct ClientConfig {
     transaction_number: i32,
-    http_address: String
+    http_address: String,
+    thread_number: i32
 }
 #[derive(Serialize, Debug)]
 pub struct Transaction {
     from: String,
     to: String,
-    balance: i32
+    balance: i64,
+    timestamp: SystemTime
 }
 
 fn load_config() -> Result<ClientConfig, Box<dyn Error>> {
@@ -31,27 +36,28 @@ fn load_config() -> Result<ClientConfig, Box<dyn Error>> {
 
 fn make_transaction() -> Transaction {
     let file_path = "address.txt";
-    let mut file = File::open(file_path).unwrap();
+    let file = File::open(file_path).unwrap();
     let reader = BufReader::new(file);
-    let line_count = reader.lines().count();
+    let line_count = reader.lines().count()-1;
 
-    let mut file = File::open(file_path).unwrap();
+    let file = File::open(file_path).unwrap();
     let reader = BufReader::new(file);
 
     let from_number = rand::thread_rng().gen_range(0..=line_count);
     let from = reader.lines().nth(from_number).unwrap().unwrap();
     
-    let mut file = File::open(file_path).unwrap();
+    let file = File::open(file_path).unwrap();
     let reader = BufReader::new(file);
 
     let to_number = rand::thread_rng().gen_range(0..=line_count);
     let to = reader.lines().nth(to_number).unwrap().unwrap();
 
-    let balance = rand::thread_rng().gen_range(0..=10000);
+    let balance = rand::thread_rng().gen_range(0..=1000);
     let transaction = Transaction {
         from,
         to,
-        balance
+        balance,
+        timestamp: SystemTime::now()
     };
     transaction
 }
@@ -68,25 +74,37 @@ fn make_clients_address() {
     }
 }
 
-async fn send_transaction(client:Client, transaction:String, address: String) -> Result<reqwest::Response, reqwest::Error> {
-    let res = client.post(address)
-        .header("Content-Type", "application/json")
-        .body(transaction)
-        .send()
-        .await;
-    res
+async fn send_transaction(client:Client, transaction_number:i32, address: String)  {
+    for _i in 0..transaction_number{
+        let transaction = make_transaction();
+        let transaction = serde_json::to_string(&transaction).unwrap();
+        let res = client.post(address.clone())
+            .header("Content-Type", "application/json")
+            .body(transaction)
+            .send()
+            .await;
+        res.unwrap();
+    }
 }
 #[tokio::main]
 async fn main() {
     let log_file = Path::new("./log.yml");
     log4rs::init_file(log_file, Default::default()).unwrap();
-    let config = load_config().unwrap();
-    let client = reqwest::Client::new();
-    let http_address = config.http_address;
+    let config = Arc::new(load_config().unwrap());
     // make_clients_address()
-    for _i in 0..config.transaction_number{
-        let transaction = make_transaction();
-        let transaction = serde_json::to_string(&transaction).unwrap();
-        let _ = send_transaction(client.clone(), transaction, http_address.clone()).await;
+    let thread_number = config.thread_number;
+    let mut handles = vec![];
+    for i in 0..thread_number {
+        let config_clone = Arc::clone(&config);
+        let handle = task::spawn(async move {
+            let http_address = config_clone.http_address.clone();
+            let client = reqwest::Client::new();
+            let _ = send_transaction(client, config_clone.transaction_number, http_address.clone()).await;
+        });
+        handles.push(handle);
+    }
+    
+    for handle in handles{
+        handle.await.unwrap();
     }
 }

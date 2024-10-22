@@ -1,7 +1,7 @@
 use actix_web::{
     Responder, HttpResponse, HttpServer, App, web
 };
-use log::info;
+use log::{error, info};
 use tokio::sync::mpsc:: Sender;
 use crate::message;
 pub struct HTTP {
@@ -29,7 +29,7 @@ impl HTTP {
         let req_body = match req {
             Ok(req) => req.into_inner(),
             Err(e) => {
-                info!("Error occured while into_inner {:?}", e);
+                error!("Error occured while into_inner {:?}", e);
                 return HttpResponse::BadRequest().body("invalid JSON")
             }
         };

@@ -26,9 +26,9 @@ impl Socket {
     
     pub fn send(&mut self, to:Identity, byte_message:&[u8]) {
         let to_i32 : i32 = to.parse().expect("Not a vaild number");
+        
         match self.nodes.get(&to) {
             Some(mut stream) => {
-                info!("send");
                 let _ = stream.write_all(byte_message);
             },
             None => {

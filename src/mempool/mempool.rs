@@ -1,6 +1,8 @@
-use std::sync::{Arc, Mutex};
+use std::{sync::{Arc, Mutex}, time::{SystemTime, UNIX_EPOCH}};
 
 use log::info;
+use serde::Serialize;
+use time::Duration;
 
 use crate::message::{self, Transaction};
 
@@ -14,13 +16,14 @@ impl MemPool {
         MemPool{transactions: transactions }
     }
 
-    pub fn add_transaction(&mut self,transaction:message::Transaction) {
+    pub fn add_transaction(&mut self,mut transaction:message::Transaction) {
+        transaction.timestamp = SystemTime::now();
         self.transactions.push(transaction);
     }
 
     pub fn payload(&mut self, batch_size:usize) -> Vec<message::message::Transaction> {
         let mempool_size = self.transactions.len();
-        if self.transactions.len() < batch_size {
+        if mempool_size < batch_size {
             let payload = self.transactions.drain(0..mempool_size).collect();
             payload
         } else {

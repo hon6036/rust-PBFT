@@ -1,2 +1,3 @@
-transaction_number = 500
+transaction_number = 100000
 http_address = "http://127.0.0.1:10001/transaction"
+thread_number = 20

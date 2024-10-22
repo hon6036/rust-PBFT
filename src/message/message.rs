@@ -1,6 +1,9 @@
+use std::time::SystemTime;
+
 use crate::{blockchain::block, types::*};
 use ring::signature::UnparsedPublicKey;
 use serde::{Deserialize, Serialize};
+use time::Duration;
 
 
 
@@ -47,5 +50,6 @@ pub struct CommitWithoutSignature{
 pub struct Transaction {
     pub from: types::Identity,
     pub to: types::Identity,
-    pub balance: i32
+    pub balance: i64,
+    pub timestamp: SystemTime
 }

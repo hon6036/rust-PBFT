@@ -30,7 +30,7 @@ impl Transport {
     }
     
     pub fn handle_connection(consensus: Arc<Mutex<Consensus>>, id: Arc<String>, mut stream:TcpStream) {
-        let mut buffer = [0 as u8;16384];
+        let mut buffer = [0 as u8;65536];
         loop {
             match stream.read(&mut buffer) {
                 Ok(_) => {

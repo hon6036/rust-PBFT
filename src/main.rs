@@ -1,6 +1,7 @@
 extern crate log4rs;
 use std::sync::Arc;
 use std::thread;
+mod benchmark;
 mod consensus;
 mod replica;
 mod message;
